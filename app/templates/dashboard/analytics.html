@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-hero position-relative overflow-hidden border-0 mb-3">
+    <div class="dashboard-gradient"></div>
+    <div class="container py-5 position-relative">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-shield-lock me-1"></i>Tenant isolated</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-graph-up-arrow me-1"></i>Live analytics</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-person-badge me-1"></i>Role-based access</span>
+                </div>
+                <div>
+                    <p class="eyebrow text-uppercase mb-2">Analytics</p>
+                    <h1 class="display-6 fw-bold mb-2">Insights for {{ organization.name }}</h1>
+                    <p class="text-secondary mb-0">Real maintenance intelligence pulled directly from your organization's data. Every query honors RBAC and tenant isolation.</p>
+                </div>
+                {% if not has_data %}
+                    <div class="alert alert-light border d-inline-flex align-items-center gap-2 py-2 px-3 mb-0 shadow-sm">
+                        <i class="bi bi-hourglass-split text-primary"></i>
+                        <span>No data yet · Start logging requests</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between shadow-sm border-0">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="pill-icon bg-gradient-primary text-white"><i class="bi bi-activity"></i></div>
+                        <div>
+                            <p class="text-uppercase fw-bold small mb-1 text-secondary">Report Center</p>
+                            <h2 class="h5 mb-0">Navigate analytics</h2>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('dashboard.overview') }}"><i class="bi bi-speedometer2 me-2"></i>Back to Dashboard</a>
+                        {% if is_admin %}
+                        <a class="btn btn-outline-success btn-lg" href="{{ url_for('dashboard.ai_insights') }}"><i class="bi bi-stars me-2"></i>AI Insights</a>
+                        {% endif %}
+                        <a class="btn btn-primary btn-lg shadow-sm" href="{{ url_for('dashboard.analytics', export='csv') }}"><i class="bi bi-download me-2"></i>Export CSV</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-4">
+    <div class="row g-3 align-items-stretch">
+        <div class="col-md-3">
+            <div class="analytics-kpi shadow-sm h-100 kpi-tile">
+                <div class="kpi-label d-flex align-items-center gap-2"><i class="bi bi-collection"></i><span>Total Requests</span></div>
+                <div class="kpi-value" data-countup-target="{{ status_totals.values()|sum if status_totals else 0 }}">0</div>
+                <div class="kpi-meta text-secondary">Tenant scoped</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="analytics-kpi shadow-sm h-100 kpi-tile">
+                <div class="kpi-label d-flex align-items-center gap-2"><i class="bi bi-patch-check"></i><span>Completed Ratio</span></div>
+                <div class="kpi-value">{{ '%.0f' % (completed_vs_pending.ratio * 100) if completed_vs_pending.ratio else 0 }}<span class="kpi-suffix">%</span></div>
+                <div class="kpi-meta text-secondary">{{ completed_vs_pending.completed }} completed · {{ completed_vs_pending.pending }} pending</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="analytics-kpi shadow-sm h-100 kpi-tile">
+                <div class="kpi-label d-flex align-items-center gap-2"><i class="bi bi-stopwatch"></i><span>Avg Repair Time</span></div>
+                <div class="kpi-value">{{ performance.avg_hours if performance.avg_hours is not none else '—' }}<span class="kpi-suffix">h</span></div>
+                <div class="kpi-meta text-secondary">Fastest {{ performance.fastest_hours if performance.fastest_hours is not none else '—' }}h · Slowest {{ performance.slowest_hours if performance.slowest_hours is not none else '—' }}h</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="analytics-kpi shadow-sm h-100 kpi-tile">
+                <div class="kpi-label d-flex align-items-center gap-2"><i class="bi bi-people"></i><span>Active Teams</span></div>
+                <div class="kpi-value" data-countup-target="{{ requests_per_team.labels|length }}">0</div>
+                <div class="kpi-meta text-secondary">Workload distribution across teams</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-4">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="analytics-card shadow-sm h-100 border-0 chart-card">
+                <div class="chart-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-people text-primary"></i><p class="eyebrow text-uppercase mb-0">Chart 1</p></div>
+                        <h2 class="h5 mb-1">Requests per Team</h2>
+                        <div class="text-secondary small">Stacked by status to reveal workload mix.</div>
+                    </div>
+                    <span class="badge rounded-pill ai-pill">Live data</span>
+                </div>
+                <div class="chart-shell">
+                    {% if requests_per_team.labels %}
+                        <canvas id="teamStatusChart" height="240"></canvas>
+                    {% else %}
+                        <div class="empty-state">No requests have been logged yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="analytics-card shadow-sm h-100 border-0 chart-card">
+                <div class="chart-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-diagram-3 text-primary"></i><p class="eyebrow text-uppercase mb-0">Chart 2</p></div>
+                        <h2 class="h5 mb-1">Requests per Category</h2>
+                        <div class="text-secondary small">Reveals dependency on each equipment type.</div>
+                    </div>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold">Mix</span>
+                </div>
+                <div class="chart-shell">
+                    {% if requests_per_category.labels %}
+                        <canvas id="categoryChart" height="240"></canvas>
+                    {% else %}
+                        <div class="empty-state">No equipment categories logged yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mt-1">
+        <div class="col-lg-7">
+            <div class="analytics-card shadow-sm h-100 border-0 chart-card">
+                <div class="chart-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-graph-up text-success"></i><p class="eyebrow text-uppercase mb-0">Chart 3</p></div>
+                        <h2 class="h5 mb-1">Preventive vs Breakdown Trend</h2>
+                        <div class="text-secondary small">Monthly flow to see maturity and stabilization.</div>
+                    </div>
+                    <span class="badge rounded-pill bg-success-subtle text-success fw-semibold">Timeline</span>
+                </div>
+                <div class="chart-shell">
+                    {% if trend_chart.labels %}
+                        <canvas id="trendChart" height="260"></canvas>
+                    {% else %}
+                        <div class="empty-state">No timeline data yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="analytics-card shadow-sm h-100 border-0 chart-card">
+                <div class="chart-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-activity text-success"></i><p class="eyebrow text-uppercase mb-0">Chart 4</p></div>
+                        <h2 class="h5 mb-1">Performance & SLA</h2>
+                        <div class="text-secondary small">Completion vs pending and team velocity.</div>
+                    </div>
+                    <span class="badge rounded-pill bg-success-subtle text-success fw-semibold">Uptime</span>
+                </div>
+                <div class="chart-shell mb-3">
+                    <canvas id="completionChart" height="160"></canvas>
+                </div>
+                <div class="chart-shell">
+                    {% if team_performance.labels %}
+                        <canvas id="teamPerformanceChart" height="180"></canvas>
+                    {% else %}
+                        <div class="empty-state">No completed repairs to measure yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="analytics-card shadow-sm h-100 border-0 table-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-layout-wtf text-primary"></i>Pivot</p>
+                        <h2 class="h6 mb-0">Requests by Team</h2>
+                        <p class="small text-secondary mb-0">Workload by status for each team.</p>
+                    </div>
+                    <span class="badge rounded-pill soft-pill">Counts</span>
+                </div>
+                <div class="table-responsive table-shell">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Team</th>
+                                <th>New</th>
+                                <th>In Progress</th>
+                                <th>Repaired</th>
+                                <th>Scrap</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in requests_per_team.labels %}
+                            <tr>
+                                <td class="fw-semibold">{{ team }}</td>
+                                <td>{{ requests_per_team.datasets[0].data[loop.index0] }}</td>
+                                <td>{{ requests_per_team.datasets[1].data[loop.index0] }}</td>
+                                <td>{{ requests_per_team.datasets[2].data[loop.index0] }}</td>
+                                <td>{{ requests_per_team.datasets[3].data[loop.index0] }}</td>
+                                <td class="text-end fw-semibold">{{ requests_per_team.totals[team] }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="6" class="text-center text-secondary py-3">No requests recorded.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="analytics-card shadow-sm h-100 border-0 table-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-grid text-primary"></i>Pivot</p>
+                        <h2 class="h6 mb-0">By Category</h2>
+                        <p class="small text-secondary mb-0">Counts across equipment types.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold">Mix</span>
+                </div>
+                <div class="table-responsive table-shell">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-end">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category, count in requests_by_category.items() %}
+                                <tr>
+                                    <td class="fw-semibold text-capitalize">{{ category }}</td>
+                                    <td class="text-end">{{ count }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-center text-secondary py-3">No categories yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="analytics-card shadow-sm h-100 border-0 table-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-bar-chart text-success"></i>Pivot</p>
+                        <h2 class="h6 mb-0">By Status</h2>
+                        <p class="small text-secondary mb-0">Totals by lifecycle state.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-success-subtle text-success fw-semibold">Status</span>
+                </div>
+                <div class="table-responsive table-shell">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Status</th>
+                                <th class="text-end">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status in ['new','in_progress','repaired','scrap'] %}
+                                <tr>
+                                    <td class="fw-semibold text-capitalize">{{ status.replace('_',' ') }}</td>
+                                    <td class="text-end">{{ status_totals.get(status, 0) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (() => {
+        const teamChartData = {{ requests_per_team|tojson }};
+        const categoryData = {{ requests_per_category|tojson }};
+        const trendData = {{ trend_chart|tojson }};
+        const completionData = {{ completed_vs_pending|tojson }};
+        const teamPerformance = {{ team_performance|tojson }};
+
+        const commonOptions = {
+            responsive: true,
+            animation: { duration: 900, easing: 'easeOutCubic' },
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: { mode: 'index', intersect: false },
+            },
+        };
+
+        const teamCtx = document.getElementById('teamStatusChart');
+        if (teamCtx && teamChartData.labels.length) {
+            new Chart(teamCtx, {
+                type: 'bar',
+                data: {
+                    labels: teamChartData.labels,
+                    datasets: teamChartData.datasets.map((ds) => ({
+                        ...ds,
+                        stack: 'status',
+                        borderRadius: 8,
+                    })),
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        x: { stacked: true, ticks: { autoSkip: false } },
+                        y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+                    },
+                },
+            });
+        }
+
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx && categoryData.labels.length) {
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [{
+                        data: categoryData.values,
+                        backgroundColor: ['#4f46e5','#22c55e','#0ea5e9','#f59e0b','#ef4444','#10b981','#8b5cf6'],
+                        hoverOffset: 12,
+                    }],
+                },
+                options: {
+                    ...commonOptions,
+                    cutout: '58%',
+                    plugins: { legend: { position: 'bottom' } },
+                },
+            });
+        }
+
+        const trendCtx = document.getElementById('trendChart');
+        if (trendCtx && trendData.labels.length) {
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: trendData.labels,
+                    datasets: [
+                        {
+                            label: 'Preventive',
+                            data: trendData.preventive,
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14,165,233,0.16)',
+                            fill: true,
+                            tension: 0.32,
+                        },
+                        {
+                            label: 'Breakdown',
+                            data: trendData.corrective,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239,68,68,0.12)',
+                            fill: true,
+                            tension: 0.32,
+                        },
+                    ],
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } },
+                    },
+                },
+            });
+        }
+
+        const completionCtx = document.getElementById('completionChart');
+        if (completionCtx) {
+            new Chart(completionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending'],
+                    datasets: [{
+                        data: [completionData.completed, completionData.pending],
+                        backgroundColor: ['#22c55e', '#f59e0b'],
+                        borderWidth: 0,
+                    }],
+                },
+                options: {
+                    ...commonOptions,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed} requests` } },
+                    },
+                },
+            });
+        }
+
+        const teamPerfCtx = document.getElementById('teamPerformanceChart');
+        if (teamPerfCtx && teamPerformance.labels.length) {
+            new Chart(teamPerfCtx, {
+                type: 'bar',
+                data: {
+                    labels: teamPerformance.labels,
+                    datasets: [{
+                        label: 'Avg Repair Hours',
+                        data: teamPerformance.avg_durations,
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 10,
+                    }],
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } },
+                    },
+                },
+            });
+        }
+    })();
+</script>
+{% endblock %}

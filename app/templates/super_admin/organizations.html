@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-4 root-console">
+  <div class="root-hero mb-4 position-relative overflow-hidden">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <div class="d-inline-flex align-items-center gap-2 text-uppercase eyebrow text-white-50">
+          <span class="badge-dot bg-success"></span>
+          <span>Platform Control</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+          <h1 class="h4 mb-0 text-white">Organizations</h1>
+          <span class="badge border border-light text-white bg-transparent rounded-pill">Root Authority</span>
+        </div>
+        <p class="text-white-75 mb-2">Activate, suspend, or reshape tenant capacity instantly.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-diagram-3 me-2"></i>{{ organizations|length }} tenants</span>
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-people me-2"></i>Total users across tenants</span>
+        </div>
+      </div>
+      <div class="text-end d-flex flex-column align-items-end gap-2">
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-shield-check text-success"></i>Governance audited</span>
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-cloud-lock"></i>Tenant isolation enforced</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="root-panel root-panel-elevated p-0 overflow-hidden">
+    <div class="d-flex flex-wrap justify-content-between align-items-center px-3 px-lg-4 py-3 border-bottom border-white-10">
+      <div>
+        <div class="eyebrow text-uppercase text-white-50">Tenant Directory</div>
+        <h5 class="mb-0 text-white d-flex align-items-center gap-2"><i class="bi bi-buildings"></i><span>Manage organizations</span></h5>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center text-white-75 small">
+        <span class="chip-soft text-white border border-white-25"><i class="bi bi-activity me-2"></i>Live actions</span>
+        <span class="chip-soft text-white border border-white-25"><i class="bi bi-speedometer2 me-2"></i>Instant capacity changes</span>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0 root-table">
+        <thead class="border-bottom border-white-10">
+          <tr>
+            <th class="ps-4">Name</th>
+            <th>Slug</th>
+            <th>Status</th>
+            <th>Users</th>
+            <th>Subscription</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for org in organizations %}
+          <tr class="align-middle">
+            <td class="fw-semibold ps-4">
+              <div class="d-flex align-items-center gap-2">
+                <span class="icon-circle bg-white-10 text-white"><i class="bi bi-building"></i></span>
+                <span>{{ org.name }}</span>
+              </div>
+            </td>
+            <td class="text-secondary">{{ org.slug }}</td>
+            <td>
+              {% if org.status.value == 'active' %}
+                <span class="badge text-bg-success">Active</span>
+              {% else %}
+                <span class="badge text-bg-warning text-dark">Suspended</span>
+              {% endif %}
+            </td>
+            <td><span class="badge text-bg-dark border border-light-subtle">{{ org.current_user_count }}</span></td>
+            <td>
+              {% if org.subscription %}
+                <div class="d-flex flex-column">
+                  <span class="badge text-bg-info">{{ org.subscription.subscription_status.value }}</span>
+                  <span class="text-secondary small">{{ org.subscription.max_users_allowed }} seats</span>
+                </div>
+              {% else %}
+                <span class="badge text-bg-secondary">Unprovisioned</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4">
+              <div class="d-flex flex-wrap justify-content-end gap-2">
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="activate">
+                  <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-play-fill me-1"></i>Activate</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="suspend">
+                  <button type="submit" class="btn btn-sm btn-outline-warning text-dark bg-warning-subtle border-0"><i class="bi bi-pause-fill me-1"></i>Suspend</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="increase_capacity">
+                  <input type="hidden" name="seats" value="{{ org.subscription.max_users_allowed + 5 if org.subscription else 5 }}">
+                  <button type="submit" class="btn btn-sm btn-outline-info"><i class="bi bi-plus-lg me-1"></i>Seats</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="extend_trial">
+                  <input type="hidden" name="seats" value="{{ org.subscription.max_users_allowed if org.subscription else 5 }}">
+                  <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-clock-history me-1"></i>Extend</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="activate_subscription">
+                  <input type="hidden" name="seats" value="{{ org.subscription.max_users_allowed if org.subscription else 5 }}">
+                  <button type="submit" class="btn btn-sm btn-outline-light"><i class="bi bi-lightning-charge me-1"></i>Force</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.organization_action', org_id=org.id) }}" class="d-inline" onsubmit="return confirm('Delete tenant and all data? This cannot be undone.')">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="delete">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3 me-1"></i>Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

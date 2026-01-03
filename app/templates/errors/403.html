@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Forbidden · GearGuard{% endblock %}
+{% block content %}
+<div class="error-viewport">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card error-card border-0 rounded-4 shadow hover-lift">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="status-pill text-bg-warning">403</span>
+                            <div>
+                                <p class="text-uppercase small fw-semibold text-secondary mb-1">Permission needed</p>
+                                <h1 class="h4 mb-0">Access blocked</h1>
+                            </div>
+                        </div>
+                        <div class="icon-burst text-warning">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary mb-4">{{ message or "You do not have permission to view this resource." }}</p>
+
+                    <div class="alert callout-soft-warning d-flex align-items-center gap-3 mb-4">
+                        <div class="icon-badge text-warning"><i class="bi bi-lock-fill"></i></div>
+                        <div>
+                            <div class="fw-semibold">Tenant isolation enforced</div>
+                            <div class="small text-secondary">Your session is restricted to your organization. ID tampering or cross-tenant access is prevented.</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-warning">1</span>
+                                    <div>
+                                        <div class="fw-semibold">Return safely</div>
+                                        <div class="small text-secondary">Head back to your dashboard to continue working within your approved area.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-warning">2</span>
+                                    <div>
+                                        <div class="fw-semibold">Request access</div>
+                                        <div class="small text-secondary">If you need this view, ask an admin to grant the right role in your tenant.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-success"><i class="bi bi-shield-check"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Data remains sealed</div>
+                                        <div class="small text-secondary">Cross-tenant safeguards block unauthorized identifiers and sensitive objects.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-info"><i class="bi bi-headset"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Need a hand?</div>
+                                        <div class="small text-secondary">Re-authenticate or contact your admin if this was unexpected.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a href="{{ url_for('dashboard.overview') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-house-door me-2"></i>Back to Dashboard
+                        </a>
+                        <a href="{{ url_for('main.logout') }}" class="btn btn-soft btn-lg">
+                            <i class="bi bi-arrow-repeat me-2"></i>Re-authenticate
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

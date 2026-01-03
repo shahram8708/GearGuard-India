@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(46px);
+        opacity: 0.48;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 280px;
+        height: 280px;
+        background: rgba(91, 75, 255, 0.14);
+        top: -100px;
+        left: -70px;
+    }
+    .admin-hero-shell::after {
+        width: 320px;
+        height: 320px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -130px;
+        right: -80px;
+    }
+    .page-header-card {
+        background: linear-gradient(120deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.1));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .card-elevated {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    .card-elevated:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 28px 100px rgba(15, 23, 42, 0.14);
+        border-color: rgba(91, 75, 255, 0.18);
+    }
+    .filter-card label { font-size: 0.9rem; }
+    .table thead th {
+        border-bottom-width: 1px;
+        font-weight: 700;
+    }
+    .table tbody tr:hover { background: #f8fafc; }
+    .badge-overdue { background: #ffe8e6; color: #b42318; }
+    .badge-overdue-pulse { animation: pulse 1.8s infinite; }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(180, 35, 24, 0.45); }
+        70% { box-shadow: 0 0 0 12px rgba(180, 35, 24, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(180, 35, 24, 0); }
+    }
+    .btn.is-loading { cursor: wait; opacity: 0.9; }
+    @media (max-width: 991px) {
+        .filter-card form > div { margin-bottom: 6px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="page-header-card p-4 p-md-5 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="eyebrow text-uppercase mb-1">Asset Control</div>
+                    <h1 class="h4 mb-1">Equipment Management</h1>
+                    <p class="text-secondary small mb-0">All equipment is isolated to {{ current_organization.name }}. Search, sort, and manage securely.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-primary d-inline-flex align-items-center" href="{{ url_for('admin.teams_index') }}"><i class="bi bi-diagram-3 me-2"></i>Teams</a>
+                    <a class="btn btn-primary d-inline-flex align-items-center" href="{{ url_for('admin.equipment_create') }}"><i class="bi bi-plus-lg me-2"></i>Add Equipment</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-elevated p-3 mb-3 filter-card">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label fw-semibold">Search</label>
+                    <input type="text" class="form-control" name="search" placeholder="Name, category, serial, department" value="{{ search }}">
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="">All</option>
+                        {% for status in EquipmentStatus %}
+                            <option value="{{ status.value }}" {% if status_filter==status.value %}selected{% endif %}>{{ status.value.replace('_',' ')|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <label class="form-label fw-semibold">Sort</label>
+                    <select class="form-select" name="sort">
+                        <option value="created" {% if sort=='created' %}selected{% endif %}>Newest</option>
+                        <option value="created_asc" {% if sort=='created_asc' %}selected{% endif %}>Oldest</option>
+                        <option value="name" {% if sort=='name' %}selected{% endif %}>Name A→Z</option>
+                        <option value="name_desc" {% if sort=='name_desc' %}selected{% endif %}>Name Z→A</option>
+                        <option value="status" {% if sort=='status' %}selected{% endif %}>Status</option>
+                        <option value="status_desc" {% if sort=='status_desc' %}selected{% endif %}>Status (Reverse)</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-12 d-flex align-items-end gap-2">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search me-2"></i>Apply</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('admin.equipment_index') }}">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-elevated p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Serial</th>
+                            <th>Team</th>
+                            <th>Assigned</th>
+                            <th>Status</th>
+                            <th class="text-center">Requests</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in equipment_items %}
+                        <tr>
+                            <td class="fw-semibold d-flex align-items-center gap-2">
+                                <span>{{ item.name }}</span>
+                                {% if item.status.value == 'scrapped' %}<span class="badge text-bg-dark">Scrapped</span>{% endif %}
+                                {% if equipment_overdue_map.get(item.id) %}<span class="badge badge-overdue badge-overdue-pulse">Overdue</span>{% endif %}
+                            </td>
+                            <td class="text-secondary">{{ item.category|title }}</td>
+                            <td>{{ item.serial_number or '—' }}</td>
+                            <td>
+                                {% if item.maintenance_team %}
+                                    <span class="badge text-bg-light border"><i class="bi bi-diagram-3 me-1"></i>{{ item.maintenance_team.team_name }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.assigned_to_user %}
+                                    <span class="badge text-bg-light border"><i class="bi bi-person me-1"></i>{{ item.assigned_to_user.name }}</span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set status_class = {
+                                    'active':'text-bg-success',
+                                    'maintenance':'text-bg-warning',
+                                    'out_of_service':'text-bg-danger',
+                                    'scrapped':'text-bg-secondary'
+                                }[item.status.value] %}
+                                <span class="badge {{ status_class }} text-uppercase">{{ item.status.value.replace('_',' ') }}</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex flex-column align-items-center gap-1">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.maintenance_index', equipment_id=item.id) }}">
+                                        <i class="bi bi-wrench-adjustable-circle me-1"></i> {{ request_counts.get(item.id, 0) }}
+                                    </a>
+                                    {% if equipment_overdue_map.get(item.id) %}<span class="text-danger x-small">Overdue work</span>{% endif %}
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-success" type="button" title="AI Predictive Maintenance" data-ai-predict-btn data-ai-predict-url="{{ url_for('admin.equipment_ai_predict', equipment_id=item.id) }}" data-equipment-name="{{ item.name }}">
+                                        <i class="bi bi-stars"></i>
+                                    </button>
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.equipment_edit', equipment_id=item.id) }}" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <form method="POST" action="{{ url_for('admin.equipment_delete', equipment_id=item.id) }}" class="d-inline" onsubmit="return confirm('Delete or scrap this equipment?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit" title="Delete"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-secondary py-4">No equipment found. Add your first asset to this tenant.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if pagination.pages > 1 %}
+        <nav class="mt-3" aria-label="Equipment pagination">
+            <ul class="pagination justify-content-end mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.equipment_index', page=pagination.prev_num, search=search, status=status_filter, sort=sort) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}"><a class="page-link" href="{{ url_for('admin.equipment_index', page=p, search=search, status=status_filter, sort=sort) }}">{{ p }}</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.equipment_index', page=pagination.next_num, search=search, status=status_filter, sort=sort) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

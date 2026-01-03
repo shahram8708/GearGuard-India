@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(46px);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 280px;
+        height: 280px;
+        background: rgba(91, 75, 255, 0.14);
+        top: -100px;
+        left: -80px;
+    }
+    .admin-hero-shell::after {
+        width: 320px;
+        height: 320px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -140px;
+        right: -60px;
+    }
+    .page-header-card {
+        background: linear-gradient(120deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.1));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 22px;
+        box-shadow: 0 26px 90px rgba(15, 23, 42, 0.12);
+    }
+    .admin-sidebar {
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+        position: sticky;
+        top: 100px;
+    }
+    .sidebar-links li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: #475569;
+        font-weight: 600;
+        transition: all 160ms ease;
+    }
+    .sidebar-links li a.active,
+    .sidebar-links li a:hover {
+        background: rgba(91, 75, 255, 0.1);
+        color: #5b4bff;
+        box-shadow: inset 0 0 0 1px rgba(91, 75, 255, 0.14);
+        transform: translateX(2px);
+    }
+    .card-elevated {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    .card-elevated:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 28px 100px rgba(15, 23, 42, 0.14);
+        border-color: rgba(91, 75, 255, 0.18);
+    }
+    .stat-chip {
+        border-radius: 14px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: #f8fafc;
+        padding: 10px 12px;
+    }
+    .table thead th {
+        border-bottom-width: 1px;
+        font-weight: 700;
+    }
+    .table tbody tr:hover {
+        background: #f8fafc;
+    }
+    .role-badge {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+    .floating-actions .btn {
+        border-radius: 12px;
+    }
+    .btn.is-loading {
+        cursor: wait;
+        opacity: 0.9;
+    }
+    @media (max-width: 991px) {
+        .admin-sidebar { position: relative; top: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="page-header-card p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="icon-circle shadow-soft"><i class="bi bi-speedometer2"></i></span>
+                            <div>
+                                <div class="eyebrow text-uppercase mb-1">Admin Control Center</div>
+                                <h1 class="h3 mb-1">{{ organization.name }}</h1>
+                                <p class="mb-0 text-secondary">Manage people, visibility, and settings for {{ organization.slug }}.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="badge text-bg-light d-inline-flex align-items-center gap-2"> <i class="bi bi-link-45deg"></i> Slug: {{ organization.slug }} </span>
+                            <span class="badge text-bg-light d-inline-flex align-items-center gap-2"> <i class="bi bi-calendar3"></i> Created {{ organization.created_at.strftime('%b %d, %Y') }} </span>
+                            <span class="badge fs-6 {{ 'text-bg-success' if organization.status.value == 'active' else 'text-bg-danger' }} px-3 py-2 d-inline-flex align-items-center gap-2"><i class="bi bi-shield-check"></i>{{ organization.status.value|capitalize }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="admin-sidebar p-3">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-layout-sidebar text-primary"></i>
+                        <span class="fw-semibold">Admin Navigation</span>
+                    </div>
+                    <ul class="list-unstyled sidebar-links mb-3">
+                        <li><a href="{{ url_for('admin.dashboard') }}" class="active"><i class="bi bi-speedometer2"></i><span>Overview</span></a></li>
+                        <li><a href="{{ url_for('admin.add_user') }}"><i class="bi bi-person-plus"></i><span>Add User</span></a></li>
+                        <li><a href="{{ url_for('admin.equipment_index') }}"><i class="bi bi-cpu"></i><span>Equipment</span></a></li>
+                        <li><a href="{{ url_for('admin.teams_index') }}"><i class="bi bi-diagram-3"></i><span>Teams</span></a></li>
+                        <li><a href="#organization-settings"><i class="bi bi-gear"></i><span>Organization Settings</span></a></li>
+                        <li><a href="#user-table"><i class="bi bi-people"></i><span>User Directory</span></a></li>
+                    </ul>
+                    <div class="border-top pt-3 mt-3 small text-secondary">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-link-45deg text-primary"></i>
+                            <span>Slug: {{ organization.slug }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-calendar3 text-primary"></i>
+                            <span>Created {{ organization.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>Tenant isolation enforced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row g-4 align-items-stretch">
+                    <div class="col-lg-7">
+                        <div class="card-elevated p-4 h-100">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                                <div>
+                                    <div class="eyebrow text-uppercase mb-1">Organization Control</div>
+                                    <h2 class="h4 mb-0">{{ organization.name }}</h2>
+                                    <div class="text-secondary small">Slug: <span class="fw-semibold">{{ organization.slug }}</span></div>
+                                </div>
+                                <div class="stat-chip d-inline-flex align-items-center gap-2 text-success fw-semibold">
+                                    <i class="bi bi-shield-check"></i><span>Status: {{ organization.status.value|capitalize }}</span>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="stat-card p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-secondary">Users</span>
+                                            <i class="bi bi-people text-primary"></i>
+                                        </div>
+                                        <div class="h4 mb-0">{{ stats.user_count }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-card p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-secondary">Active</span>
+                                            <i class="bi bi-activity text-success"></i>
+                                        </div>
+                                        <div class="h4 mb-0">{{ stats.active_count }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-card p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-secondary">Admins</span>
+                                            <i class="bi bi-shield-lock text-warning"></i>
+                                        </div>
+                                        <div class="h4 mb-0">{{ stats.admin_count }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex flex-wrap gap-2 floating-actions">
+                                <a class="btn btn-primary" href="{{ url_for('admin.add_user') }}"><i class="bi bi-person-plus me-2"></i>Add User</a>
+                                <a class="btn btn-outline-primary" href="{{ url_for('main.home') }}"><i class="bi bi-speedometer2 me-2"></i>Back to Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" id="organization-settings">
+                        <div class="card-elevated p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="h6 mb-0">Organization Settings</h2>
+                                <i class="bi bi-gear text-primary"></i>
+                            </div>
+                            <form method="POST" novalidate>
+                                {{ settings_form.hidden_tag() }}
+                                <div class="mb-3">
+                                    {{ settings_form.organization_name.label(class="form-label fw-semibold") }}
+                                    {{ settings_form.organization_name(class="form-control form-control-lg", placeholder="Organization name") }}
+                                    {% for error in settings_form.organization_name.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                                </div>
+                            </form>
+                            <div class="border-top pt-3 mt-3 small text-secondary">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-clock-history text-primary"></i>
+                                    <span>Created {{ organization.created_at.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-link-45deg text-primary"></i>
+                                    <span>Login slug is tenant scoped</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-shield-check text-success"></i>
+                                    <span>All changes stay within this organization</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mt-1 align-items-start" id="user-table">
+                    <div class="col-lg-12">
+                        <div class="card-elevated p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="eyebrow text-uppercase mb-1">User Directory</div>
+                                    <h2 class="h5 mb-0">Organization Users</h2>
+                                </div>
+                                <a class="btn btn-outline-primary" href="{{ url_for('admin.add_user') }}"><i class="bi bi-plus-lg me-2"></i>New User</a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Role</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Created</th>
+                                            <th scope="col" class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ user.name }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td><span class="badge role-badge role-{{ user.role.value }} text-uppercase">{{ user.role.value }}</span></td>
+                                            <td>
+                                                {% if user.active %}
+                                                    <span class="badge text-bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge text-bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                                            <td class="text-end">
+                                                <div class="btn-group" role="group">
+                                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.edit_user', user_id=user.id) }}"><i class="bi bi-pencil"></i></a>
+                                                    <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        {% if user.active %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary" {% if current_user.id == user.id and stats.admin_count == 1 %}disabled{% endif %} title="Deactivate">
+                                                            <i class="bi bi-slash-circle"></i>
+                                                        </button>
+                                                        {% else %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                                            <i class="bi bi-check2-circle"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </form>
+                                                    <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Remove this user from the organization?');">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" {% if user.id == current_user.id %}disabled{% endif %} title="Remove user">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center text-secondary py-4">No users found for this organization.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="alert alert-light border mt-3 mb-0">
+                                <i class="bi bi-shield-lock text-primary me-2"></i>
+                                All actions are enforced against the active organization context. Cross-tenant access is blocked by middleware and scoped queries.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

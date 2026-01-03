@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero { position: relative; }
+    .admin-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 12% 18%, rgba(79,70,229,0.12), transparent 32%), radial-gradient(circle at 82% 8%, rgba(14,165,233,0.12), transparent 28%), linear-gradient(120deg, rgba(79,70,229,0.06), rgba(14,165,233,0.05)); opacity: 0.9; z-index: 0; }
+    .hero-shell { position: relative; z-index: 1; background: #fff; border: 1px solid rgba(15,23,42,0.08); border-radius: 18px; box-shadow: 0 18px 60px rgba(15,23,42,0.06); overflow: hidden; }
+    .hero-ribbon { background: linear-gradient(120deg, rgba(79,70,229,0.12), rgba(14,165,233,0.12)); border-bottom: 1px solid rgba(79,70,229,0.08); padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .hero-title { font-weight: 800; letter-spacing: -0.02em; }
+    .eyebrow { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: #64748b; }
+    .hero-actions .btn { border-radius: 12px; }
+    .smart-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 12px; background: rgba(15,23,42,0.04); border: 1px solid rgba(15,23,42,0.08); font-weight: 600; color: #0f172a; }
+
+    .glass-card { border-radius: 16px; border: 1px solid rgba(15,23,42,0.06); background: rgba(255,255,255,0.95); box-shadow: 0 14px 44px rgba(15,23,42,0.07); backdrop-filter: blur(8px); }
+    .lift { transition: transform 140ms ease, box-shadow 180ms ease; }
+    .lift:hover { transform: translateY(-2px); box-shadow: 0 22px 68px rgba(15,23,42,0.1); }
+    .list-group-item { border: none; padding: 12px 0; }
+    .list-group-item + .list-group-item { border-top: 1px solid rgba(15,23,42,0.06); }
+    .badge-overdue { background: #fee2e2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .badge-overdue-pulse { animation: subtlePulse 1.6s ease-in-out infinite; }
+    @keyframes subtlePulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.25);} 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0.02);} 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0);} }
+    .table tr { transition: background 140ms ease, transform 140ms ease; }
+    .table tr:hover { background: rgba(79,70,229,0.04); transform: translateY(-1px); }
+    .table thead th { text-transform: uppercase; font-size: 12px; letter-spacing: .4px; }
+    .form-select { border-radius: 12px; }
+    .btn-icon { display: inline-flex; align-items: center; justify-content: center; }
+    .divider-soft { border-top: 1px solid rgba(15,23,42,0.08); }
+
+    @media (max-width: 767.98px) {
+        .hero-ribbon { align-items: flex-start; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero">
+    <div class="container-fluid px-lg-5">
+        <div class="hero-shell mb-4">
+            <div class="hero-ribbon">
+                <div>
+                    <div class="eyebrow mb-1">Technician Hub</div>
+                    <h1 class="hero-title h4 mb-0">{{ team.team_name }}</h1>
+                    <p class="text-secondary small mb-0">Manage membership, assignments, and equipment. Scoped to {{ current_organization.name }}.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center hero-actions">
+                    <a class="btn btn-primary smart-action-btn" href="{{ url_for('admin.maintenance_index', team_id=team.id) }}">
+                        <i class="bi bi-wrench-adjustable-circle me-2"></i>Team Requests
+                        <span class="badge text-bg-light border ms-2">{{ team_request_count }}</span>
+                    </a>
+                    {% if team_overdue_count > 0 %}
+                        <span class="badge badge-overdue badge-overdue-pulse">{{ team_overdue_count }} overdue</span>
+                    {% endif %}
+                    <a class="btn btn-outline-secondary smart-action-btn" href="{{ url_for('admin.teams_index') }}"><i class="bi bi-arrow-left me-1"></i>Teams</a>
+                    <a class="btn btn-outline-primary smart-action-btn" href="{{ url_for('admin.equipment_index') }}"><i class="bi bi-cpu me-1"></i>Equipment</a>
+                </div>
+            </div>
+            <div class="p-3 d-flex flex-wrap gap-2">
+                <span class="smart-pill"><i class="bi bi-shield-lock"></i>Tenant isolated</span>
+                <span class="smart-pill"><i class="bi bi-people"></i>Members only</span>
+                <span class="smart-pill"><i class="bi bi-cpu"></i>Equipment mapped</span>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-5">
+                <div class="glass-card p-4 h-100 lift">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h6 mb-1 d-flex align-items-center gap-2"><i class="bi bi-people-fill text-primary"></i><span>Technicians</span></h2>
+                            <p class="text-secondary small mb-0">Only users in this organization are eligible.</p>
+                        </div>
+                        <span class="badge text-bg-light border">{{ team.technicians|length }} members</span>
+                    </div>
+
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for member in team.technicians %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">{{ member.user.name }}</div>
+                                <div class="text-secondary small">{{ member.user.email }}</div>
+                            </div>
+                            <form method="POST" action="{{ url_for('admin.technician_remove', team_id=team.id, membership_id=member.id) }}" onsubmit="return confirm('Remove technician from team?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-x-lg"></i></button>
+                            </form>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-center text-secondary">No technicians assigned yet.</li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="divider-soft pt-3">
+                        <h3 class="h6 mb-2 d-flex align-items-center gap-2"><i class="bi bi-person-plus text-primary"></i><span>Add Technician</span></h3>
+                        <form method="POST" novalidate>
+                            {{ assignment_form.hidden_tag() }}
+                            <div class="d-flex gap-2 flex-wrap">
+                                {{ assignment_form.user_id(class="form-select flex-grow-1") }}
+                                <button class="btn btn-primary smart-action-btn" type="submit"><i class="bi bi-plus-lg me-1"></i>Add</button>
+                            </div>
+                            {% for error in assignment_form.user_id.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            {% if assignment_form.user_id.choices|length == 0 %}
+                                <div class="text-secondary small mt-2">All active users are already assigned.</div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="glass-card p-4 h-100 lift">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h6 mb-1 d-flex align-items-center gap-2"><i class="bi bi-hdd-network text-primary"></i><span>Equipment Assigned</span></h2>
+                            <p class="text-secondary small mb-0">Equipment count is tenant-filtered; cross-org access is blocked.</p>
+                        </div>
+                        <span class="badge text-bg-light border">{{ team_equipment|length }} assets</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Assigned</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eq in team_equipment %}
+                                <tr>
+                                    <td class="fw-semibold">{{ eq.name }}</td>
+                                    <td>{{ eq.category|title }}</td>
+                                    <td>
+                                        {% set status_class = {
+                                            'active':'text-bg-success',
+                                            'maintenance':'text-bg-warning',
+                                            'out_of_service':'text-bg-danger',
+                                            'scrapped':'text-bg-secondary'
+                                        }[eq.status.value] %}
+                                        <span class="badge {{ status_class }} text-uppercase">{{ eq.status.value.replace('_',' ') }}</span>
+                                    </td>
+                                    <td>{% if eq.assigned_to_user %}<span class="badge text-bg-light border">{{ eq.assigned_to_user.name }}</span>{% else %}<span class="text-secondary">—</span>{% endif %}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.equipment_edit', equipment_id=eq.id) }}"><i class="bi bi-pencil"></i></a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-secondary py-3">No equipment currently mapped to this team.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

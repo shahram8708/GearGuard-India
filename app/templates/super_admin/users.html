@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-4 root-console">
+  <div class="root-hero mb-4 position-relative overflow-hidden">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <div class="d-inline-flex align-items-center gap-2 text-uppercase eyebrow text-white-50">
+          <span class="badge-dot bg-success"></span>
+          <span>Identity Control</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+          <h1 class="h4 mb-0 text-white">All Users</h1>
+          <span class="badge border border-light text-white bg-transparent rounded-pill">Root Authority</span>
+        </div>
+        <p class="text-white-75 mb-2">Reset, ban, or elevate any account with full audit logging.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-people me-2"></i>{{ users|length }} accounts</span>
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-shield-check me-2"></i>Audited actions</span>
+        </div>
+      </div>
+      <div class="text-end d-flex flex-column align-items-end gap-2">
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-lock-fill text-success"></i>Privileged controls</span>
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-clipboard-data"></i>Every change logged</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="root-panel root-panel-elevated p-0 overflow-hidden">
+    <div class="d-flex flex-wrap justify-content-between align-items-center px-3 px-lg-4 py-3 border-bottom border-white-10">
+      <div>
+        <div class="eyebrow text-uppercase text-white-50">User Directory</div>
+        <h5 class="mb-0 text-white d-flex align-items-center gap-2"><i class="bi bi-people"></i><span>Manage identities</span></h5>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center text-white-75 small">
+        <span class="chip-soft text-white border border-white-25"><i class="bi bi-activity me-2"></i>Live actions</span>
+        <span class="chip-soft text-white border border-white-25"><i class="bi bi-journal-check me-2"></i>Full audit</span>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0 root-table">
+        <thead class="border-bottom border-white-10">
+          <tr>
+            <th class="ps-4">Name</th>
+            <th>Email</th>
+            <th>Org</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr class="align-middle">
+            <td class="fw-semibold ps-4">
+              <div class="d-flex align-items-center gap-2">
+                <span class="icon-circle bg-white-10 text-white"><i class="bi bi-person-badge"></i></span>
+                <span>{{ user.name }}</span>
+              </div>
+            </td>
+            <td class="text-secondary">{{ user.email }}</td>
+            <td><span class="badge text-bg-dark border border-light-subtle">{{ user.organization.name if user.organization else 'n/a' }}</span></td>
+            <td><span class="badge text-bg-info text-capitalize">{{ user.role.value.replace('_',' ') }}</span></td>
+            <td>
+              {% if user.active %}
+                <span class="badge text-bg-success">Active</span>
+              {% else %}
+                <span class="badge text-bg-warning text-dark">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4">
+              <div class="d-flex flex-wrap justify-content-end gap-2">
+                <form method="POST" action="{{ url_for('super_admin.user_action', user_id=user.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="activate">
+                  <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-play-fill me-1"></i>Activate</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.user_action', user_id=user.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="deactivate">
+                  <button type="submit" class="btn btn-sm btn-outline-warning text-dark bg-warning-subtle border-0"><i class="bi bi-pause-fill me-1"></i>Deactivate</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.user_action', user_id=user.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="make_admin">
+                  <button type="submit" class="btn btn-sm btn-outline-info"><i class="bi bi-shield-lock me-1"></i>Admin</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.user_action', user_id=user.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="make_user">
+                  <button type="submit" class="btn btn-sm btn-outline-light"><i class="bi bi-person-check me-1"></i>User</button>
+                </form>
+                <form method="POST" action="{{ url_for('super_admin.user_action', user_id=user.id) }}" class="d-inline">
+                  {{ action_form.csrf_token }}
+                  <input type="hidden" name="action" value="force_reset">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-arrow-counterclockwise me-1"></i>Force Reset</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

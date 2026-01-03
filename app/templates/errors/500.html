@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Server Error · GearGuard{% endblock %}
+{% block content %}
+<div class="error-viewport">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card error-card border-0 rounded-4 shadow hover-lift">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="status-pill text-bg-danger">500</span>
+                            <div>
+                                <p class="text-uppercase small fw-semibold text-secondary mb-1">Unexpected issue</p>
+                                <h1 class="h4 mb-0">Something went wrong</h1>
+                            </div>
+                        </div>
+                        <div class="icon-burst text-danger">
+                            <i class="bi bi-emoji-dizzy"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary mb-4">{{ message or "We hit an unexpected issue. The event has been logged and will be reviewed." }}</p>
+
+                    <div class="alert callout-soft-danger d-flex align-items-center gap-3 mb-4">
+                        <div class="icon-badge text-danger"><i class="bi bi-activity"></i></div>
+                        <div>
+                            <div class="fw-semibold">Your data remains safe</div>
+                            <div class="small text-secondary">We failed gracefully without exposing stack traces or tenant data.</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-danger">1</span>
+                                    <div>
+                                        <div class="fw-semibold">Retry your last step</div>
+                                        <div class="small text-secondary">Return to your dashboard and refresh. Temporary hiccups often resolve instantly.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-danger">2</span>
+                                    <div>
+                                        <div class="fw-semibold">Stay protected</div>
+                                        <div class="small text-secondary">We log events without revealing tenant data or stack traces to keep you safe.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-success"><i class="bi bi-shield-check"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Recovery in progress</div>
+                                        <div class="small text-secondary">Our monitors alert the team automatically so remediation can start quickly.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-info"><i class="bi bi-chat-dots"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Need assistance?</div>
+                                        <div class="small text-secondary">If this persists, re-login or contact support with the time of the error.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a href="{{ url_for('dashboard.overview') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Retry Dashboard
+                        </a>
+                        <a href="{{ url_for('main.logout') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-box-arrow-right me-2"></i>Re-login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

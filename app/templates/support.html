@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero glass-card mb-4 p-4 p-md-5 support-hero">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
+        <div>
+            <div class="eyebrow text-uppercase mb-2">Contact & Support</div>
+            <h1 class="display-6 fw-bold mb-3">Enterprise-grade helpdesk for GearGuard India.</h1>
+            <p class="lead mb-3">Reach our support engineers for account, billing, technical, security, and maintenance requests. Every ticket is tracked, triaged, and acknowledged quickly.</p>
+            <div class="d-flex flex-wrap gap-2 gap-md-3">
+                <span class="badge text-bg-light border px-3 py-2 lift-sm"><i class="bi bi-broadcast me-2"></i>24x7 monitoring</span>
+                <span class="badge text-bg-light border px-3 py-2 lift-sm"><i class="bi bi-stopwatch me-2"></i>First response SLA: 4 hrs</span>
+                <span class="badge text-bg-light border px-3 py-2 lift-sm"><i class="bi bi-lock me-2"></i>Security mailbox: security@gearguard.in</span>
+            </div>
+        </div>
+        <div class="card-elevated p-4 support-meta lift-sm">
+            <div class="d-flex align-items-center mb-3 gap-2">
+                <div class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <div class="fw-semibold">Priority handling</div>
+                    <div class="text-secondary small">Critical incidents route to on-call security and reliability engineers.</div>
+                </div>
+            </div>
+            <ul class="list-unstyled mb-0 text-secondary small">
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Spam-guarded form with rate limiting.</li>
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Admin notified via HTML email with full context.</li>
+                <li class="mb-0"><i class="bi bi-check-circle text-success me-2"></i>Requests stored securely for audit and follow-up.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card-elevated p-4 p-md-5 h-100 lift-sm">
+                <div class="section-heading mb-3">
+                    <div>
+                        <p class="section-kicker mb-1"><i class="bi bi-chat-dots me-2"></i>We respond fast</p>
+                        <h2 class="mb-0">Submit a support request</h2>
+                    </div>
+                    <span class="badge text-bg-primary d-flex align-items-center gap-1"><i class="bi bi-activity"></i><span>Live routing</span></span>
+                </div>
+                <form method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.full_name.label }}</label>
+                            {{ form.full_name(class="form-control form-control-lg", placeholder="Your full name") }}
+                            {% for error in form.full_name.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                            {{ form.email(class="form-control form-control-lg", placeholder="you@company.com") }}
+                            {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.category.label }}</label>
+                            {{ form.category(class="form-select form-select-lg") }}
+                            {% for error in form.category.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.organization.label }}</label>
+                            {{ form.organization(class="form-control form-control-lg", placeholder="Organization (optional)") }}
+                            {% for error in form.organization.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.subject.label }}</label>
+                            {{ form.subject(class="form-control form-control-lg", placeholder="Example: Login MFA failing for admin team") }}
+                            {% for error in form.subject.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.message.label }}</label>
+                            {{ form.message(class="form-control", rows=6, placeholder="Describe what happened, steps to reproduce, expected vs actual behavior, and any urgency.") }}
+                            {% for error in form.message.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mt-4">
+                        <div class="text-secondary small">Submitting will create a secure ticket and notify our admins.</div>
+                        {{ form.submit(class="btn btn-primary btn-lg px-4 lift-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card-elevated p-4 h-100 d-flex flex-column gap-4 lift-sm">
+                <div>
+                    <div class="section-heading mb-2">
+                        <div>
+                            <p class="section-kicker mb-1"><i class="bi bi-list-check me-2"></i>Pick the closest</p>
+                            <h5 class="mb-0">Support categories</h5>
+                        </div>
+                        <span class="badge text-bg-light border">Guided triage</span>
+                    </div>
+                    <ul class="list-unstyled text-secondary support-categories">
+                        <li><i class="bi bi-person-check me-2 text-primary"></i>Account & Login Issues</li>
+                        <li><i class="bi bi-credit-card me-2 text-primary"></i>Billing & Payments / Subscription Help</li>
+                        <li><i class="bi bi-bug me-2 text-primary"></i>Technical Support / Bugs</li>
+                        <li><i class="bi bi-stars me-2 text-primary"></i>Feature Request / Product Feedback</li>
+                        <li><i class="bi bi-people me-2 text-primary"></i>Organization / Team Management Issues</li>
+                        <li><i class="bi bi-wrench-adjustable-circle me-2 text-primary"></i>Maintenance System Support</li>
+                        <li><i class="bi bi-shield-exclamation me-2 text-primary"></i>Security / Abuse Reporting</li>
+                        <li><i class="bi bi-chat-dots me-2 text-primary"></i>Other (General Inquiry)</li>
+                    </ul>
+                </div>
+                <div class="support-sla p-3 rounded-4 lift-sm">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-stopwatch"></i></div>
+                        <h6 class="mb-0">Response & resolution</h6>
+                    </div>
+                    <ul class="text-secondary small mb-0">
+                        <li>Critical security: immediate triage, response within 1 hour.</li>
+                        <li>Production incidents: acknowledgement within 4 hours, updates until resolved.</li>
+                        <li>Billing and access: response within 8 business hours.</li>
+                    </ul>
+                </div>
+                <div class="support-channel p-3 rounded-4 lift-sm">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-envelope-paper"></i></div>
+                        <h6 class="mb-0">Alternative channels</h6>
+                    </div>
+                    <p class="text-secondary small mb-2">Email security incidents to <span class="fw-semibold">security@gearguard.in</span>. For billing, write to <span class="fw-semibold">billing@gearguard.in</span>. Include screenshots and timestamps when possible.</p>
+                    <p class="text-secondary small mb-0">For enterprise customers, your named CSM can be reached via the agreed escalation matrix.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

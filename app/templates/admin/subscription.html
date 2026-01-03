@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block title %}Subscription · {{ page_title }}{% endblock %}
+{% block extra_head %}
+<style>
+    .page-hero { position: relative; overflow: hidden; border-radius: 18px; background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(14,165,233,0.14)); border: 1px solid rgba(79,70,229,0.12); box-shadow: 0 18px 60px rgba(15,23,42,0.08); }
+    .page-hero::before { content:""; position:absolute; inset:0; background: radial-gradient(circle at 12% 18%, rgba(255,255,255,0.24), transparent 36%), radial-gradient(circle at 86% 10%, rgba(255,255,255,0.18), transparent 30%); opacity:0.9; }
+    .page-hero > * { position: relative; z-index: 1; }
+    .eyebrow { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: #e2e8f0; }
+    .hero-title { color: #fff; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-badge { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.26); color: #fff; border-radius: 12px; padding: 6px 12px; font-weight: 700; }
+
+    .pricing-tile { background: #0b1221; border-radius: 18px; color: #fff; padding: 22px; box-shadow: 0 20px 60px rgba(15,23,42,0.35); border: 1px solid rgba(255,255,255,0.08); }
+    .metric-card { border: 1px solid rgba(15,23,42,0.08); border-radius: 16px; padding: 16px; background: #fff; box-shadow: 0 14px 44px rgba(15,23,42,0.08); }
+    .lift { transition: transform 140ms ease, box-shadow 180ms ease; }
+    .lift:hover { transform: translateY(-2px); box-shadow: 0 18px 60px rgba(15,23,42,0.12); }
+
+    .plan-status { font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; color: #cbd5e1; }
+    .history-row { border-bottom:1px solid #f1f5f9; padding:12px 0; }
+    .history-row:last-child { border-bottom:none; }
+    .pill { padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; }
+    .pill-trial { background:#fef9c3; color:#92400e; }
+    .pill-active { background:#dcfce7; color:#166534; }
+    .pill-expired { background:#fee2e2; color:#991b1b; }
+
+    .capacity-input { font-size:28px; font-weight:700; }
+    .summary-card { background: linear-gradient(135deg, rgba(79,70,229,0.06), rgba(14,165,233,0.06)); border: 1px solid rgba(79,70,229,0.1); border-radius: 16px; }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-weight:600; }
+    .summary-row span { font-weight:400; color:#475569; }
+    .summary-total { font-size: 1.05rem; }
+
+    .legend-chip { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:12px; background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.16); color:#fff; }
+    .legend-chip i { color:#38bdf8; }
+
+    .history-scroll { max-height:320px; overflow-y:auto; }
+    .icon-pill { border-radius: 12px; padding: 6px 10px; background: rgba(15,23,42,0.05); border: 1px solid rgba(15,23,42,0.08); font-weight: 600; }
+
+    @media (max-width: 768px){
+        .capacity-input { font-size:22px; }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<section class="py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="page-hero p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="eyebrow text-dark mb-1">Subscription</div>
+                    <h2 class="hero-title h4 text-dark mb-1">Seat capacity & billing</h2>
+                    <p class="text-dark-75 mb-0 small">One-time activation with tenant isolation, Razorpay secure checkout, and auditable ledger.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="legend-chip text-dark"><i class="bi bi-shield-lock"></i>Tenant scoped</span>
+                    <span class="legend-chip text-dark"><i class="bi bi-credit-card-2-front"></i>Razorpay</span>
+                    <span class="legend-chip text-dark"><i class="bi bi-people"></i>Seat based</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-stretch">
+            <div class="col-lg-4">
+                <div class="pricing-tile bg-white h-100 lift">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="plan-status">Current Plan</div>
+                        {% set status_class = 'pill-trial' if subscription.subscription_status.value == 'trial' else ('pill-active' if subscription.subscription_status.value == 'active' else 'pill-expired') %}
+                        <span class="pill {{ status_class }}">{{ subscription.subscription_status.value|title }}</span>
+                    </div>
+                    <h3 class="mb-2">GearGuard India Platform</h3>
+                    <p class="mb-3 opacity-90">One-time activation + seat capacity. No recurring billing. Future upgrades only pay for extra seats.</p>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex text-dark justify-content-between">
+                            <span class="opacity-80">Users allowed</span>
+                            <strong>{{ subscription.max_users_allowed }}</strong>
+                        </div>
+                        <div class="d-flex text-dark justify-content-between">
+                            <span class="opacity-80">Users used</span>
+                            <strong>{{ current_users }}</strong>
+                        </div>
+                        <div class="d-flex text-dark justify-content-between">
+                            <span class="opacity-80">Remaining slots</span>
+                            <strong>{{ remaining }}</strong>
+                        </div>
+                    </div>
+                    <hr class="text-black-50 my-3">
+                    <div class="small text-dark text-black-75">Base activation fee: ₹{{ pricing.base_fee_inr }} one-time · Additional seats: ₹{{ pricing.per_member_inr }} each · Trial seats: {{ config.SUBSCRIPTION_TRIAL_SEATS or 5 }}</div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="metric-card h-100 lift">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="mb-1 d-flex align-items-center gap-2"><i class="bi bi-graph-up"></i><span>Upgrade Capacity</span></h5>
+                            <div class="text-secondary small">Select the total users you need. We charge once for the added seats (and activation if first time).</div>
+                        </div>
+                        <span class="badge text-bg-light border d-flex align-items-center gap-1"><i class="bi bi-shield-check"></i> Razorpay Secure</span>
+                    </div>
+                    <form id="upgradeForm" method="post" action="{{ url_for('admin.subscription_checkout') }}" class="d-grid gap-3">
+                        {{ form.hidden_tag() }}
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label text-secondary mb-1">Total member capacity desired</label>
+                                {{ form.total_members(class_='form-control form-control-lg capacity-input', min=config.SUBSCRIPTION_TRIAL_SEATS or 5, step='1', id='desiredMembers') }}
+                                <div class="form-text">Must be greater than current {{ subscription.max_users_allowed }} seats.</div>
+                            </div>
+                        </div>
+                        <div class="summary-card p-3">
+                            <div class="summary-row"><span>Base activation fee</span><strong id="baseFee">₹{{ pricing.base_fee_inr }}</strong></div>
+                            <div class="summary-row"><span>Additional seats</span><strong id="additionalSeatCost">₹0</strong></div>
+                            <div class="summary-row summary-total pt-2 mt-1 border-top border-1 border-light-subtle">
+                                <span>Total payable</span>
+                                <span class="fw-bold" id="totalPayable">₹0</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary px-4 smart-action-btn" id="launchCheckout"><i class="bi bi-lightning-charge me-2"></i>Pay & Activate</button>
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary smart-action-btn"><i class="bi bi-arrow-left"></i>Back to Admin</a>
+                        </div>
+                        <div class="alert alert-danger d-none" id="upgradeFeedback"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="metric-card h-100 d-flex flex-column lift">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0 d-flex align-items-center gap-2"><i class="bi bi-journal-text"></i><span>Payment History</span></h6>
+                        <span class="icon-pill"><i class="bi bi-credit-card-2-front"></i> Razorpay</span>
+                    </div>
+                    <div class="small text-secondary mb-2">Auditable ledger of all seat purchases.</div>
+                    <div class="flex-grow-1 history-scroll">
+                        {% if payments %}
+                            {% for payment in payments %}
+                                <div class="history-row">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>#{{ payment.razorpay_order_id }}</strong>
+                                        <span class="text-secondary small">{{ payment.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <div class="text-secondary">₹{{ '%.2f' | format(payment.amount / 100) }} · {{ payment.purchased_user_capacity }} seats</div>
+                                        <span class="pill {{ 'pill-active' if payment.status.value == 'captured' else 'pill-expired' if payment.status.value == 'failed' else 'pill-trial' }}">{{ payment.status.value|title }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-secondary small">No payments yet. Trial active.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const pricing = {
+        baseFee: Number({{ pricing.base_fee_inr }}),
+        perSeat: Number({{ pricing.per_member_inr }}),
+        currentCap: Number({{ subscription.max_users_allowed }}),
+        trialSeats: Number({{ config.SUBSCRIPTION_TRIAL_SEATS or 5 }})
+    };
+    const feedback = document.getElementById('upgradeFeedback');
+    const totalField = document.getElementById('totalPayable');
+    const baseField = document.getElementById('baseFee');
+    const addField = document.getElementById('additionalSeatCost');
+    const desiredInput = document.getElementById('desiredMembers');
+
+    function formatINR(value){ return '₹' + value.toLocaleString('en-IN'); }
+
+    function recalc(){
+        const desired = Number(desiredInput.value || 0);
+        const additional = Math.max(desired - pricing.currentCap, 0);
+        const baseApplies = {{ 'true' if not subscription.base_fee_paid else 'false' }};
+        const base = baseApplies ? pricing.baseFee : 0;
+        const addCost = Math.max(desired - pricing.currentCap, 0) * pricing.perSeat;
+        baseField.textContent = formatINR(base);
+        addField.textContent = formatINR(addCost);
+        totalField.textContent = formatINR(base + addCost);
+    }
+    desiredInput.addEventListener('input', recalc);
+    recalc();
+
+    function showFeedback(message, tone='danger'){
+        if (!feedback) return;
+        feedback.textContent = message;
+        feedback.classList.remove('d-none','alert-danger','alert-success');
+        feedback.classList.add(tone === 'success' ? 'alert-success' : 'alert-danger');
+        feedback.scrollIntoView({behavior:'smooth'});
+    }
+
+    document.getElementById('launchCheckout').addEventListener('click', async () => {
+        const desired = Number(desiredInput.value || 0);
+        if (desired <= pricing.currentCap){
+            showFeedback('Requested seats must exceed current capacity.');
+            return;
+        }
+        const form = document.getElementById('upgradeForm');
+        const formData = new FormData(form);
+        try {
+            const res = await fetch(form.action, { method: 'POST', body: formData });
+            const payload = await res.json();
+            if (!res.ok){
+                showFeedback(payload.message || 'Unable to start checkout.');
+                return;
+            }
+            const options = {
+                key: payload.key_id,
+                amount: payload.amount,
+                currency: payload.currency,
+                name: payload.org_name,
+                description: `${payload.purchased_capacity} seats for GearGuard India platform`,
+                order_id: payload.order_id,
+                handler: async function (response){
+                    const verifyRes = await fetch('{{ url_for('admin.subscription_verify') }}', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+                        body: JSON.stringify(response)
+                    });
+                    const verifyPayload = await verifyRes.json();
+                    if (!verifyRes.ok){
+                        showFeedback(verifyPayload.message || 'Payment verification failed.');
+                        return;
+                    }
+                    showFeedback(verifyPayload.message || 'Subscription activated.', 'success');
+                    setTimeout(() => window.location.reload(), 900);
+                },
+                prefill: {
+                    email: payload.org_email,
+                    name: payload.org_name,
+                },
+                notes: { organization: payload.org_name },
+                theme: { color: '#0ea5e9' }
+            };
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function(resp){ showFeedback(resp.error && resp.error.description ? resp.error.description : 'Payment failed.'); });
+            rzp.open();
+        } catch (err){
+            console.error(err);
+            showFeedback('Unable to launch checkout.');
+        }
+    });
+</script>
+{% endblock %}

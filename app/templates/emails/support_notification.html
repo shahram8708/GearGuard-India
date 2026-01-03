@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GearGuard Support Request</title>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fb; margin: 0; padding: 24px; color: #0f172a; }
+        .email-shell { max-width: 720px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #5b4bff, #2ed3b7); color: #fff; padding: 20px 24px; }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
+        .brand-mark { width: 38px; height: 38px; border-radius: 12px; background: rgba(255, 255, 255, 0.16); display: grid; place-items: center; font-weight: 800; letter-spacing: 0.6px; }
+        .content { padding: 24px; }
+        .meta-grid { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .meta-grid th { text-align: left; padding: 8px 0; color: #475569; font-size: 13px; }
+        .meta-grid td { padding: 8px 0; font-weight: 600; }
+        .card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; background: #f8fafc; }
+        .message-box { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; background: #fff; white-space: pre-wrap; line-height: 1.55; }
+        .footer { padding: 16px 24px 20px; color: #475569; font-size: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="email-shell">
+        <div class="header">
+            <div class="brand">
+                <div class="brand-mark">GG</div>
+                <div>
+                    <div>GearGuard India</div>
+                    <small style="opacity: 0.9; font-weight: 500;">New support request</small>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <p style="margin: 0 0 12px; color: #0f172a; font-weight: 700;">A customer submitted a support request.</p>
+            <table class="meta-grid">
+                <tr><th>Full name</th><td>{{ support.full_name }}</td></tr>
+                <tr><th>Email</th><td>{{ support.email }}</td></tr>
+                <tr><th>Category</th><td>{{ support.category.value.replace('_', ' ') }}</td></tr>
+                <tr><th>Subject</th><td>{{ support.subject }}</td></tr>
+                <tr><th>Organization</th><td>{{ support.organization_name or 'Not provided' }}</td></tr>
+                <tr><th>Tenant ID</th><td>{{ support.organization_id or 'Not linked' }}</td></tr>
+                <tr><th>User ID</th><td>{{ support.user_id or 'Guest' }}</td></tr>
+                <tr><th>Created</th><td>{{ support.created_at.strftime('%Y-%m-%d %H:%M UTC') if support.created_at else '' }}</td></tr>
+                <tr><th>IP</th><td>{{ support.ip_address or 'Unavailable' }}</td></tr>
+                <tr><th>User-Agent</th><td>{{ support.user_agent or 'Unavailable' }}</td></tr>
+            </table>
+            <div class="card">
+                <div style="font-weight: 700; margin-bottom: 8px;">Message</div>
+                <div class="message-box">{{ support.message }}</div>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+                <div style="font-weight: 700; margin-bottom: 6px;">Actions</div>
+                <ul style="margin: 0; padding-left: 18px; color: #475569;">
+                    <li>Respond to the requester and log updates in the ticketing system.</li>
+                    <li>Verify organization and role if the request changes access or billing.</li>
+                    <li>Escalate to security@gearguard.in for any abuse, breach, or data concerns.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer">
+            <div>Automated notification from GearGuard India Support Desk.</div>
+            <div>This email may contain sensitive information. Do not forward outside your incident channel.</div>
+        </div>
+    </div>
+</body>
+</html>

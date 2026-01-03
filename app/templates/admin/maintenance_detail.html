@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(44px);
+        opacity: 0.48;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 280px;
+        height: 280px;
+        background: rgba(91, 75, 255, 0.14);
+        top: -100px;
+        left: -70px;
+    }
+    .admin-hero-shell::after {
+        width: 320px;
+        height: 320px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -130px;
+        right: -80px;
+    }
+    .page-header-card {
+        background: linear-gradient(120deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.1));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .card-elevated {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    .card-elevated:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 28px 100px rgba(15, 23, 42, 0.14);
+        border-color: rgba(91, 75, 255, 0.18);
+    }
+    .panel-card {
+        background: #f8fafc;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        height: 100%;
+    }
+    .badge-overdue { background: #ffe8e6; color: #b42318; }
+    .badge-overdue-pulse { animation: pulse 1.8s infinite; }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(180, 35, 24, 0.45); }
+        70% { box-shadow: 0 0 0 12px rgba(180, 35, 24, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(180, 35, 24, 0); }
+    }
+    .btn.is-loading { cursor: wait; opacity: 0.9; }
+    .side-note { color: #475569; }
+    @media (max-width: 767px) {
+        .page-header-card { border-radius: 16px; }
+        .card-elevated { border-radius: 14px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="page-header-card p-4 p-md-5 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="eyebrow text-uppercase mb-1">Maintenance Request</div>
+                    <h1 class="h4 mb-1">{{ req.subject }}</h1>
+                    <p class="text-secondary small mb-0">Tenant-locked workflow with audit-friendly timestamps and enforced team boundaries.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <a class="btn btn-outline-secondary d-inline-flex align-items-center" href="{{ url_for('admin.maintenance_index') }}"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                    <span id="smartStatusLabel">{% include 'admin/partials/status_badge.html' with context %}</span>
+                    {% if req.is_overdue %}<span class="badge badge-overdue badge-overdue-pulse">Overdue</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-8">
+                <div class="card-elevated p-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="icon-circle shadow-soft"><i class="bi bi-cpu"></i></span>
+                            <div>
+                                <div class="fw-semibold">Equipment</div>
+                                <div class="text-secondary small">{{ req.equipment.name if req.equipment else 'N/A' }}</div>
+                                {% if req.equipment and req.equipment.status.value == 'scrapped' %}
+                                    <div class="badge text-bg-dark mt-1">Equipment scrapped</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if req.equipment and req.equipment.maintenance_team %}
+                            <span class="badge text-bg-light border"><i class="bi bi-diagram-3 me-1"></i>{{ req.equipment.maintenance_team.team_name }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="small text-secondary mb-3">{{ req.description or 'No description provided.' }}</div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Type</div>
+                                <div class="fw-semibold text-uppercase">{{ req.request_type.value }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Priority</div>
+                                <div class="fw-semibold text-capitalize">{{ req.priority }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Requested By</div>
+                                <div class="fw-semibold">{{ req.requested_by.name if req.requested_by else 'N/A' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Scheduled</div>
+                                {% if req.scheduled_date %}
+                                    <div class="fw-semibold d-flex align-items-center gap-2">
+                                        <i class="bi bi-calendar2-week"></i>{{ req.scheduled_date.strftime('%Y-%m-%d') }}
+                                        {% if req.is_overdue %}<span class="badge text-bg-danger">Overdue</span>{% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="fw-semibold text-secondary">—</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Started</div>
+                                <div class="fw-semibold">{{ req.started_at.strftime('%Y-%m-%d %H:%M UTC') if req.started_at else '—' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Completed</div>
+                                <div class="fw-semibold">{{ req.completed_at.strftime('%Y-%m-%d %H:%M UTC') if req.completed_at else '—' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Duration (hrs)</div>
+                                <div class="fw-semibold">{{ '%.2f'|format(req.duration_hours) if req.duration_hours else '—' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Team</div>
+                                <div class="fw-semibold">{{ req.team.team_name if req.team else '—' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel-card">
+                                <div class="text-secondary small">Assigned Technician</div>
+                                <div class="fw-semibold" data-smart-assignee>{{ req.assigned_technician.name if req.assigned_technician else 'Unassigned' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-elevated p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold">Status Transition</div>
+                        <span class="text-secondary small">Duration tracked only when work is active.</span>
+                    </div>
+                    <form method="POST" action="{{ url_for('admin.maintenance_transition', request_id=req.id) }}" class="row g-3">
+                        {{ status_form.hidden_tag() }}
+                        <div class="col-md-8">
+                            {{ status_form.transition.label(class="form-label fw-semibold") }}
+                            {{ status_form.transition(class="form-select") }}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" type="submit"><i class="bi bi-arrow-repeat me-2"></i>{{ status_form.submit.label.text }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card-elevated p-4 mb-3" data-request-smart-actions data-action-url="{{ url_for('admin.maintenance_smart_action', request_id=req.id) }}" data-status-target="#smartStatusLabel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold">Smart Actions</div>
+                        <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true" data-smart-loader hidden></div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary smart-action-btn" type="button" data-smart-action="assign_me" {% if not smart_actions.can_assign_me %}disabled{% endif %}>
+                            <i class="bi bi-person-plus me-2"></i>Assign to me
+                        </button>
+                        <button class="btn btn-outline-primary smart-action-btn" type="button" data-smart-action="start" {% if not smart_actions.can_start %}disabled{% endif %}>
+                            <i class="bi bi-play-circle me-2"></i>Mark In Progress
+                        </button>
+                        <button class="btn btn-success smart-action-btn" type="button" data-smart-action="repaired" {% if not smart_actions.can_repair %}disabled{% endif %}>
+                            <i class="bi bi-check2-circle me-2"></i>Mark Repaired
+                        </button>
+                        <button class="btn btn-dark smart-action-btn" type="button" data-smart-action="scrap" {% if not smart_actions.can_scrap %}disabled{% endif %}>
+                            <i class="bi bi-x-octagon me-2"></i>Scrap
+                        </button>
+                    </div>
+                    <div class="alert alert-danger mt-3 py-2 px-3 d-none" data-smart-feedback hidden></div>
+                    <div class="text-secondary x-small mt-2">Role-aware, tenant-validated quick actions. No page reload.</div>
+                </div>
+
+                <div class="card-elevated p-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold">Technician Assignment</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-ai-tech-recommend data-ai-tech-url="{{ url_for('admin.maintenance_ai_recommend_technician', request_id=req.id) }}">
+                                <i class="bi bi-magic me-1"></i>AI Recommend Technician
+                            </button>
+                            <span class="text-secondary x-small">Same-team technicians only</span>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ url_for('admin.maintenance_assign', request_id=req.id) }}" class="row g-3">
+                        {{ assign_form.hidden_tag() }}
+                        <div class="col-12">
+                            {{ assign_form.technician_id.label(class="form-label fw-semibold") }}
+                            {{ assign_form.technician_id(class="form-select", disabled=not assign_form.technician_id.choices, **{'data-ai-tech-target': 'true'}) }}
+                            {% for error in assign_form.technician_id.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                            {% if not assign_form.technician_id.choices %}
+                                <div class="text-secondary small mt-1">Add technicians to {{ req.team.team_name if req.team else 'the maintenance team' }} first.</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-outline-primary w-100" type="submit" {% if not assign_form.technician_id.choices %}disabled{% endif %}>
+                                <i class="bi bi-person-plus me-2"></i>{{ assign_form.submit.label.text }}
+                            </button>
+                        </div>
+                        <p class="text-secondary small mb-0">Assigning moves status to In Progress and starts the clock automatically.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

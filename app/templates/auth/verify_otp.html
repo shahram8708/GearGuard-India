@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="auth-hero py-5">
+    <div class="container">
+        <div class="row align-items-center g-4 justify-content-center auth-shell">
+            <div class="col-lg-5 col-xl-5">
+                <div class="auth-intro card-elevated p-4 p-lg-5 h-100 d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="pill-icon bg-primary text-white shadow-sm"><i class="bi bi-shield-check"></i></span>
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">Secure Verification</div>
+                            <h1 class="h3 mb-0">Enter the 6-digit code</h1>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-0">We sent a one-time code to {{ masked_email }}. Keep this window open and type it below to continue.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="auth-chip"><i class="bi bi-envelope-check me-2"></i>Delivered securely</div>
+                        <div class="auth-chip"><i class="bi bi-clock-history me-2"></i>Time limited</div>
+                        <div class="auth-chip"><i class="bi bi-shield-lock me-2"></i>Tenant scoped</div>
+                    </div>
+                    <div class="auth-steps mt-2">
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-1-circle"></i></div>
+                            <div>
+                                <div class="fw-semibold">Check your inbox</div>
+                                <div class="text-secondary small">Find the 6-digit code we just sent.</div>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-2-circle"></i></div>
+                            <div>
+                                <div class="fw-semibold">Enter the code</div>
+                                <div class="text-secondary small">Type it exactly as shown; codes are case-insensitive.</div>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-3-circle"></i></div>
+                            <div>
+                                <div class="fw-semibold">Finish verification</div>
+                                <div class="text-secondary small">If it expires, request a resend after the cooldown.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-xl-4">
+                <div class="auth-card glass-card p-4 p-lg-5 shadow-lg">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">Verify OTP</div>
+                            <h2 class="h4 mb-1">Enter your code</h2>
+                            <p class="text-secondary small mb-0">Expires in <span data-otp-countdown data-seconds="{{ expires_in_seconds }}"></span>. {{ attempts_left }} attempts left.</p>
+                        </div>
+                        <span class="icon-circle bg-light text-primary"><i class="bi bi-keypad"></i></span>
+                    </div>
+                    <form method="POST" novalidate class="d-flex flex-column gap-3">
+                        {{ form.hidden_tag() }}
+                        <div>
+                            <label class="form-label fw-semibold d-flex align-items-center gap-2 mb-1">{{ form.otp_code.label.text }}<i class="bi bi-shield-lock text-primary"></i></label>
+                            <div class="d-flex gap-2">
+                                {{ form.otp_code(class="form-control form-control-lg text-center fw-bold", placeholder="000000", maxlength="6", autocomplete="one-time-code") }}
+                            </div>
+                            {% for error in form.otp_code.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-grid mb-1">
+                            <button type="submit" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 submit-spinner-btn">
+                                <span class="btn-label d-flex align-items-center gap-2"><i class="bi bi-check2-circle"></i>Verify & Continue</span>
+                                <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" hidden></span>
+                            </button>
+                        </div>
+                    </form>
+                    <form method="POST" action="{{ url_for('main.resend_otp') }}" class="d-grid gap-2 mt-2">
+                        {{ resend_form.hidden_tag() }}
+                        <button type="submit" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 submit-spinner-btn" data-otp-resend disabled>
+                            <span class="btn-label d-flex align-items-center gap-2"><i class="bi bi-arrow-clockwise"></i>Resend code</span>
+                            <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" hidden></span>
+                        </button>
+                        <div class="text-secondary x-small text-center">Resend allowed after cooldown to prevent abuse.</div>
+                    </form>
+                    <div class="text-secondary small mt-3 mb-0 d-flex align-items-start gap-2"><i class="bi bi-info-circle text-primary mt-1"></i><span>Keep this window open while entering the code. For security, repeated failures will lock verification temporarily.</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/button_spinner.js') }}?v={{ asset_version }}"></script>
+{% endblock %}

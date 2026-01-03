@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(40px);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 260px;
+        height: 260px;
+        top: -80px;
+        left: -40px;
+    }
+    .admin-hero-shell::after {
+        width: 280px;
+        height: 280px;
+        bottom: -120px;
+        right: -60px;
+    }
+    .page-header-card {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .badge-soft {
+        background: rgba(15, 23, 42, 0.04);
+        color: #0f172a;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-weight: 700;
+    }
+    .pill-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 16px 50px rgba(15, 23, 42, 0.05);
+    }
+    .frosted-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 18px;
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        backdrop-filter: blur(6px);
+        transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .frosted-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 26px 90px rgba(15, 23, 42, 0.14);
+    }
+    .input-shell {
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .input-shell:focus-within {
+        border-color: rgba(91, 75, 255, 0.45);
+        box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.12);
+        background: #fff;
+    }
+    .input-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(91, 75, 255, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #5b4bff;
+        margin-right: 10px;
+    }
+    .hint-text {
+        color: #475569;
+    }
+    .side-card {
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: linear-gradient(180deg, #fff, #f7f9fc);
+        box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+    }
+    .timeline-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #5b4bff, #2ed3b7);
+        box-shadow: 0 0 0 6px rgba(91, 75, 255, 0.08);
+    }
+    .btn.is-loading {
+        cursor: wait;
+        opacity: 0.9;
+    }
+    .btn.is-loading .btn-label {
+        opacity: 0.9;
+    }
+    @media (max-width: 767px) {
+        .page-header-card {
+            border-radius: 16px;
+        }
+        .frosted-card,
+        .side-card {
+            border-radius: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="row g-4 align-items-start">
+            <div class="col-12">
+                <div class="page-header-card p-4 p-md-5 position-relative overflow-hidden">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="icon-circle shadow-soft"><i class="bi bi-person-bounding-box fs-5"></i></span>
+                            <div>
+                                <div class="eyebrow text-uppercase mb-1">Team Access</div>
+                                <h1 class="h3 mb-1">Add a new team member</h1>
+                                <p class="mb-0 text-secondary">Securely onboard teammates. New users are automatically scoped to {{ current_organization.name }}.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge-soft d-inline-flex align-items-center gap-2"><i class="bi bi-shield-check"></i>Role-based access</span>
+                            <span class="badge-soft d-inline-flex align-items-center gap-2"><i class="bi bi-link-45deg"></i>Tenant-aware routes</span>
+                            <span class="badge-soft d-inline-flex align-items-center gap-2"><i class="bi bi-people"></i>{{ current_organization.name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="frosted-card p-4 p-md-5 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">User details</div>
+                            <h2 class="h4 mb-1">Create account credentials</h2>
+                            <p class="hint-text small mb-0">We guide you through essentials: identity, contact, secure password, and role.</p>
+                        </div>
+                        <span class="pill-check small text-success fw-semibold"><i class="bi bi-check-circle-fill text-success"></i> Auto-protected by policies</span>
+                    </div>
+
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        {{ form.submit(class="d-none") }}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                {{ form.name.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-person"></i></span>
+                                        {{ form.name(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="Full name") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Use the name that appears in approvals and audit trails.</span>
+                                    {% for error in form.name.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.email.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-envelope"></i></span>
+                                        {{ form.email(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="user@company.com", autocomplete="email") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Invites and alerts are sent here. We prevent duplicates per organization.</span>
+                                    {% for error in form.email.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.password.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-lock"></i></span>
+                                        {{ form.password(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="Strong password", autocomplete="new-password") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Use 10+ characters with symbols for better strength.</span>
+                                    {% for error in form.password.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.confirm_password.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-shield-lock"></i></span>
+                                        {{ form.confirm_password(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="Confirm password", autocomplete="new-password") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">We verify both fields match before creating the user.</span>
+                                    {% for error in form.confirm_password.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.role.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-diagram-3"></i></span>
+                                        {{ form.role(class="form-select form-select-lg border-0 bg-transparent ps-0") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Roles enforce least privilege. Admins manage users and settings; members get focused access.</span>
+                                    {% for error in form.role.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+                            <button type="submit" name="{{ form.submit.name }}" value="{{ form.submit.label.text }}" class="btn btn-primary btn-lg px-4 shadow-soft d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-send"></i>
+                                <span>{{ form.submit.label.text }}</span>
+                            </button>
+                            <div class="d-flex align-items-center gap-2 text-secondary small">
+                                <span class="timeline-dot"></span>
+                                <span>Secure handoff to provisioning · Typically under 5 seconds</span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border mt-4 mb-0 d-flex align-items-start gap-3">
+                            <span class="icon-circle flex-shrink-0"><i class="bi bi-info-lg"></i></span>
+                            <div>
+                                <div class="fw-semibold mb-1">What happens next?</div>
+                                <ul class="mb-0 ps-3 text-secondary small">
+                                    <li>We bind the user to {{ current_organization.name }} and enforce tenant-aware routes.</li>
+                                    <li>Role-based permissions activate instantly across dashboards and admin areas.</li>
+                                    <li>Audit trails capture who created the account and when.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr class="my-5">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">Bulk import</div>
+                            <h3 class="h5 mb-1">Upload a CSV to add many users</h3>
+                            <p class="hint-text small mb-0">Include columns: name, email, password, role (admin/user). Invalid rows are skipped with detailed errors.</p>
+                        </div>
+                        <a href="{{ url_for('admin.bulk_user_sample') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-download"></i>
+                            <span>Download sample CSV</span>
+                        </a>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ bulk_form.hidden_tag() }}
+                        {{ bulk_form.submit(class="d-none") }}
+                        <div class="input-shell">
+                            <div class="d-flex align-items-center">
+                                <span class="input-icon"><i class="bi bi-file-earmark-spreadsheet"></i></span>
+                                {{ bulk_form.file(class="form-control form-control-lg border-0 bg-transparent ps-0") }}
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                            <span class="text-secondary small">CSV encoding: UTF-8. We validate passwords and roles per row.</span>
+                            {% for error in bulk_form.file.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-3 d-flex flex-wrap align-items-center gap-3">
+                            <button type="submit" name="{{ bulk_form.submit.name }}" value="{{ bulk_form.submit.label.text }}" class="btn btn-outline-primary btn-lg d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-upload"></i>
+                                <span>{{ bulk_form.submit.label.text }}</span>
+                            </button>
+                            <div class="d-flex align-items-center gap-2 text-secondary small">
+                                <span class="timeline-dot"></span>
+                                <span>We create every valid row and skip duplicates already in {{ current_organization.name }}.</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="side-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="icon-circle"><i class="bi bi-stars"></i></span>
+                        <div>
+                            <h3 class="h5 mb-1">Quick tips</h3>
+                            <p class="text-secondary small mb-0">Keep onboarding smooth and secure.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="pill-check"><i class="bi bi-lightning-charge text-warning"></i><span>Use work emails for reliable delivery and SSO parity.</span></div>
+                        <div class="pill-check"><i class="bi bi-shield-lock text-primary"></i><span>Admins can reset passwords, but users cannot see them.</span></div>
+                        <div class="pill-check"><i class="bi bi-activity text-success"></i><span>Inactive accounts can be paused without deletion.</span></div>
+                        <div class="pill-check"><i class="bi bi-chat-dots text-info"></i><span>Send a short welcome note so they know what to do next.</span></div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex align-items-start gap-3">
+                        <span class="icon-circle bg-white shadow-soft"><i class="bi bi-shield-check text-primary"></i></span>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">Safer by default</div>
+                            <p class="text-secondary small mb-3">Tenant isolation, enforced role scopes, and audit logging are on. You can adjust permissions later in settings.</p>
+                            <div class="d-inline-flex align-items-center gap-2 text-primary fw-semibold">
+                                <i class="bi bi-lock-fill"></i>
+                                <span>Policy aligned with {{ current_organization.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

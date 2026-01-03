@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% macro kanban_card(card) %}
+<div class="kanban-card" data-request-id="{{ card.id }}" data-status="{{ card.status }}" data-can-move="{{ 'true' if card.can_move else 'false' }}">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <div class="d-flex flex-column">
+            <div class="kanban-pill status-{{ card.status }} text-uppercase fw-bold">{{ card.status.replace('_',' ') }}</div>
+            <div class="fw-semibold mt-1">{{ card.subject }}</div>
+            <div class="text-secondary small">{{ card.equipment or 'Equipment not set' }}</div>
+        </div>
+        <div class="d-flex flex-column align-items-end gap-1">
+            <span class="badge rounded-pill text-bg-{{ 'info' if card.request_type == 'preventive' else 'warning' }} text-uppercase">{{ 'Preventive' if card.request_type == 'preventive' else 'Breakdown' }}</span>
+            {% if card.overdue %}<span class="badge text-bg-danger">Overdue</span>{% endif %}
+        </div>
+    </div>
+    <div class="kanban-meta d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <div class="tech-avatar" style="--avatar-color: {{ card.assigned_technician.color }}">
+                {% if card.assigned_technician.name %}
+                    {{ card.assigned_technician.initials }}
+                {% else %}
+                    <i class="bi bi-person"></i>
+                {% endif %}
+            </div>
+            <div class="d-flex flex-column">
+                <span class="fw-semibold small">{{ card.assigned_technician.name or 'Unassigned' }}</span>
+                <span class="text-secondary x-small">{{ card.team or 'No team' }}</span>
+            </div>
+        </div>
+        {% if card.scheduled_date %}
+        <div class="d-flex align-items-center gap-1 text-secondary x-small">
+            <i class="bi bi-calendar-week"></i>
+            <span>{{ card.scheduled_date }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(46px);
+        opacity: 0.48;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 280px;
+        height: 280px;
+        background: rgba(91, 75, 255, 0.14);
+        top: -100px;
+        left: -70px;
+    }
+    .admin-hero-shell::after {
+        width: 320px;
+        height: 320px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -130px;
+        right: -80px;
+    }
+    .page-header-card {
+        background: linear-gradient(120deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.1));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .card-elevated {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    .card-elevated:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 28px 100px rgba(15, 23, 42, 0.14);
+        border-color: rgba(91, 75, 255, 0.18);
+    }
+    .kanban-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+        padding: 12px 14px;
+        transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .kanban-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 70px rgba(15, 23, 42, 0.12);
+    }
+    .kanban-column {
+        background: #f8fafc;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 16px;
+        padding: 12px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .kanban-column-header {
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(91, 75, 255, 0.06);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .kanban-column-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+        min-height: 120px;
+    }
+    .kanban-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+    }
+    .kanban-loader {
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+    }
+    .kanban-legend .legend-dot {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 999px;
+        margin-right: 6px;
+    }
+    .kanban-legend span { margin-right: 12px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+    .btn.is-loading { cursor: wait; opacity: 0.9; }
+    @media (max-width: 767px) {
+        .page-header-card { border-radius: 16px; }
+        .card-elevated { border-radius: 14px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="page-header-card p-4 p-md-5 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="eyebrow text-uppercase mb-1">Maintenance Control</div>
+                    <h1 class="h4 mb-1">Kanban Board</h1>
+                    <p class="text-secondary small mb-0">Drag-and-drop workflow with tenant isolation, technician-aware permissions, and live status sync.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-secondary d-inline-flex align-items-center" href="{{ url_for('admin.maintenance_index') }}"><i class="bi bi-list-task me-1"></i>List View</a>
+                    <a class="btn btn-primary d-inline-flex align-items-center" href="{{ url_for('admin.maintenance_create') }}"><i class="bi bi-plus-lg me-2"></i>Create Request</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-elevated p-3 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="kanban-legend">
+                        <span class="legend-dot status-new"></span><span class="text-secondary small">New</span>
+                        <span class="legend-dot status-in_progress"></span><span class="text-secondary small">In Progress</span>
+                        <span class="legend-dot status-repaired"></span><span class="text-secondary small">Repaired</span>
+                        <span class="legend-dot status-scrap"></span><span class="text-secondary small">Scrap</span>
+                    </div>
+                    <div class="text-secondary small">Tenant-safe, permission-aware drag & drop.</div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-primary" type="button" data-kanban-refresh><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="kanbanAutorefresh" data-kanban-autorefresh checked>
+                        <label class="form-check-label small text-secondary" for="kanbanAutorefresh">Auto-refresh</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kanban-wrapper position-relative" data-kanban-board
+            data-fetch-url="{{ url_for('admin.maintenance_kanban_data') }}"
+            data-move-url-template="{{ url_for('admin.maintenance_kanban_move', request_id=0) }}"
+            data-csrf-token="{{ csrf_token() }}"
+            data-initial='{{ kanban_payload|tojson }}'>
+            <div class="kanban-loader" data-kanban-loader hidden>
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="small text-secondary mt-2">Syncing changes...</div>
+            </div>
+            <div class="kanban-feedback" data-kanban-feedback hidden></div>
+            <div class="kanban-grid">
+                {% for status in MaintenanceStatus %}
+                {% set cards = kanban_payload.columns[status.value] %}
+                <div class="kanban-column" data-kanban-column data-status="{{ status.value }}">
+                    <div class="kanban-column-header status-{{ status.value }}">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="status-dot status-{{ status.value }}"></span>
+                            <span class="fw-semibold text-uppercase">{{ status.value.replace('_',' ') }}</span>
+                        </div>
+                        <span class="badge text-bg-light border" data-kanban-count>{{ kanban_payload.counts[status.value] }}</span>
+                    </div>
+                    <div class="kanban-column-body" data-kanban-list>
+                        {% if cards %}
+                            {% for card in cards %}{{ kanban_card(card) }}{% endfor %}
+                        {% else %}
+                            <div class="kanban-empty text-secondary small">No requests in this stage.</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+{% endblock %}

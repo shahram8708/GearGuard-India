@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>GearGuard Verification</title>
+    <style>
+      :root { color-scheme: light; }
+      body { margin:0; padding:0; background:#f4f6fb; font-family:'Segoe UI',Arial,sans-serif; color:#0f172a; }
+      .shell { max-width:640px; margin:0 auto; padding:32px 20px; }
+      .card { background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 18px 48px rgba(15,23,42,0.08); border:1px solid rgba(15,23,42,0.06); }
+      .brand { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+      .mark { width:42px; height:42px; border-radius:14px; background:linear-gradient(135deg,#5b4bff,#2ed3b7); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:800; }
+      h1 { margin:0 0 12px; font-size:22px; }
+      p { margin:0 0 12px; line-height:1.6; color:#475569; }
+      .otp { font-size:30px; letter-spacing:8px; font-weight:800; color:#111827; text-align:center; padding:16px 0; }
+      .meta { background:#f8fafc; border:1px dashed rgba(91,75,255,0.35); border-radius:12px; padding:14px 16px; color:#334155; }
+      .btn { display:inline-block; padding:12px 22px; background:linear-gradient(135deg,#5b4bff,#2ed3b7); color:#fff; border-radius:12px; font-weight:700; text-decoration:none; box-shadow:0 12px 30px rgba(91,75,255,0.25); }
+      .footer { margin-top:18px; color:#94a3b8; font-size:12px; text-align:center; }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="card">
+        <div class="brand">
+          <div class="mark">GG</div>
+          <div>
+            <div style="font-weight:800;">GearGuard India</div>
+            <div style="color:#64748b; font-size:12px;">Secure identity verification</div>
+          </div>
+        </div>
+        <h1>{{ purpose }} Verification</h1>
+        <p>Hi {{ user.name }},</p>
+        <p>Use the one-time verification code below to continue. For your safety this code works once and expires in {{ expires_in_minutes }} minutes.</p>
+        <div class="otp">{{ otp_code }}</div>
+        <div class="meta">
+          <p style="margin:0; font-weight:700;">Security tips</p>
+          <ul style="margin:8px 0 0 18px; padding:0; color:#475569;">
+            <li>Never share this code with anyone.</li>
+            <li>We detect and block repeated failures.</li>
+            <li>If you did not request this, contact security@gearguard.app.</li>
+          </ul>
+        </div>
+        <p style="margin-top:16px; color:#0f172a; font-weight:600;">GearGuard keeps every tenant isolated and audited.</p>
+      </div>
+      <div class="footer">© {{ 2025 }} GearGuard India · Industrial reliability secured</div>
+    </div>
+  </body>
+</html>

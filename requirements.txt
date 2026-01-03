@@ -1,0 +1,10 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-WTF
+Flask-Migrate
+email-validator
+python-dotenv
+google-genai
+gunicorn
+razorpay

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero glass-card mb-4 p-4 p-md-5 privacy-hero">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
+        <div>
+            <div class="eyebrow text-uppercase mb-2">Terms & Conditions</div>
+            <h1 class="display-6 fw-bold mb-3">GearGuard India SaaS Agreement</h1>
+            <p class="lead mb-0">These terms govern access to the GearGuard India platform, APIs, and services. By using the platform, you agree to these Terms & Conditions.</p>
+        </div>
+        <div class="d-flex flex-column align-items-start gap-2">
+            <div class="badge text-bg-primary px-3 py-2"><i class="bi bi-calendar-check me-2"></i>Updated December 2025</div>
+            <span class="pill-soft"><i class="bi bi-file-earmark-lock me-2"></i>Contract ready</span>
+            <span class="pill-soft"><i class="bi bi-shield-check me-2"></i>Compliance aligned</span>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-people"></i><span class="fw-semibold">1. Agreement & parties</span></div>
+                <p class="text-secondary">This is a legally binding agreement between GearGuard India ("GearGuard", "we", "us") and the organization or individual accessing the service ("Customer", "you"). If you access on behalf of a company, you confirm you are authorized to bind that entity.</p>
+                <ul class="text-secondary">
+                    <li>Use of the platform indicates acceptance of these terms and all referenced policies.</li>
+                    <li>Service descriptions, SLAs, and pricing are defined in your subscription plan or order form.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-person-bounding-box"></i><span class="fw-semibold">2. Account, access, and responsibilities</span></div>
+                <ul class="text-secondary">
+                    <li>You must provide accurate registration details and maintain the confidentiality of credentials and MFA factors.</li>
+                    <li>You are responsible for actions taken under your accounts, including invited users and delegated admins.</li>
+                    <li>You will promptly revoke access for departed users and report suspected compromise to security@gearguard.in.</li>
+                    <li>Tenant isolation must not be bypassed; any attempt to access another tenant's data is strictly prohibited.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-graph-up"></i><span class="fw-semibold">3. Acceptable use & fair usage</span></div>
+                <ul class="text-secondary">
+                    <li>No use of the platform to store or transmit unlawful, infringing, or harmful content.</li>
+                    <li>No reverse engineering, scraping, or automated abuse of rate limits or security controls.</li>
+                    <li>No introduction of malware or attempts to probe, scan, or test the platform except through an authorized security review.</li>
+                    <li>API and email throughput are subject to fair use limits to protect stability; abuse may result in temporary rate limits.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-database-lock"></i><span class="fw-semibold">4. Data usage & ownership</span></div>
+                <ul class="text-secondary">
+                    <li>You own your organization data. We process it solely to provide the service, support, security, analytics, and product improvements.</li>
+                    <li>We may generate aggregated, anonymized insights that do not identify you or your organization.</li>
+                    <li>Third-party processors (e.g., Razorpay for payments, email delivery, AI providers) are used under data protection commitments.</li>
+                    <li>You will not upload restricted or classified information without written approval.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-shield-shaded"></i><span class="fw-semibold">5. Security</span></div>
+                <ul class="text-secondary">
+                    <li>We implement tenant isolation, encryption in transit, least-privilege access, monitoring, and backup routines.</li>
+                    <li>You are responsible for endpoint security, safe credential practices, and role-based approvals inside your tenant.</li>
+                    <li>Security incidents are handled per our incident response plan. Material incidents will be notified without undue delay.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-cash-stack"></i><span class="fw-semibold">6. Subscription, billing, and renewals</span></div>
+                <ul class="text-secondary">
+                    <li>Fees, seats, and billing cycles are defined in your subscription. Taxes are additional where applicable.</li>
+                    <li>Trials convert to paid plans per the subscription policy. Non-payment may pause or terminate service after notice.</li>
+                    <li>Upgrades and downgrades adjust entitlements and billing in the next cycle unless stated otherwise.</li>
+                    <li>Payments are processed securely via Razorpay or equivalent PCI-DSS compliant processors. We do not store card numbers.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-cloud-arrow-up"></i><span class="fw-semibold">7. Platform availability & limitations</span></div>
+                <ul class="text-secondary">
+                    <li>We target high availability but do not guarantee error-free operation. Planned maintenance windows will be communicated.</li>
+                    <li>Beta or experimental features may change or be withdrawn without notice.</li>
+                    <li>The service is provided on an "as is" and "as available" basis subject to applicable law.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-journal-x"></i><span class="fw-semibold">8. Warranties & disclaimers</span></div>
+                <ul class="text-secondary">
+                    <li>Except as expressly stated, GearGuard disclaims all warranties, including implied warranties of merchantability and fitness for a particular purpose.</li>
+                    <li>We do not warrant that the service will meet your requirements, be uninterrupted, or free of vulnerabilities.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-exclamation-octagon"></i><span class="fw-semibold">9. Limitation of liability</span></div>
+                <ul class="text-secondary">
+                    <li>To the maximum extent permitted by law, GearGuard's aggregate liability arising out of or related to the services is limited to fees paid in the preceding twelve (12) months.</li>
+                    <li>We are not liable for indirect, consequential, special, punitive, or incidental damages, or loss of profits or data.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-door-open"></i><span class="fw-semibold">10. Termination</span></div>
+                <ul class="text-secondary">
+                    <li>Either party may terminate for material breach if not cured within 30 days of written notice.</li>
+                    <li>Upon termination, access ceases. You may request data export within 30 days unless legal or security restrictions apply.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-geo-alt"></i><span class="fw-semibold">11. Governing law & jurisdiction</span></div>
+                <p class="text-secondary">These terms are governed by the laws of India. Disputes will be subject to the exclusive jurisdiction of courts in Bengaluru, Karnataka, unless required otherwise by applicable law.</p>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-arrow-repeat"></i><span class="fw-semibold">12. Changes to terms</span></div>
+                <p class="text-secondary">We may update these terms to reflect product, legal, or security changes. Continued use after updates constitutes acceptance. Material changes will be communicated via email or in-product notice.</p>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-envelope-paper-heart"></i><span class="fw-semibold">13. Contact</span></div>
+                <p class="text-secondary mb-2">Questions about these terms or security notices can be sent to legal@gearguard.in or through our <a href="{{ url_for('main.support_page') }}" class="link-primary">support desk</a>.</p>
+                <p class="text-secondary mb-0">By using the platform, you confirm you have read, understood, and agree to these Terms & Conditions.</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-elevated p-4 h-100 lift-sm privacy-aside">
+                <div class="d-flex align-items-center gap-2 mb-3 text-primary"><i class="bi bi-journal-text"></i><span class="fw-semibold">At-a-glance</span></div>
+                <ul class="list-unstyled text-secondary small mb-4 d-grid gap-2">
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Tenant isolation and RBAC enforced</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>PCI-DSS aligned payment processors</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Incident response with timely notice</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Data export available on request</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Fair-use guardrails on APIs & email</span></li>
+                </ul>
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-life-preserver"></i></span>
+                        <div>
+                            <div class="fw-semibold">Need clarity?</div>
+                            <div class="text-secondary small">Legal and security teams are available.</div>
+                        </div>
+                    </div>
+                    <a class="btn btn-primary w-100" href="{{ url_for('main.support_page') }}"><i class="bi bi-chat-dots me-2"></i>Contact support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

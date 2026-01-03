@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-hero position-relative overflow-hidden border-0 mb-3">
+    <div class="dashboard-gradient"></div>
+    <div class="container py-5 position-relative">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-shield-check me-1"></i>Secure tenant workspace</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-lock-fill me-1"></i>Role scoped</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-building me-1"></i>{{ organization.name }}</span>
+                </div>
+                <div>
+                    <p class="eyebrow text-uppercase mb-2">Welcome back</p>
+                    <h1 class="display-6 fw-bold mb-2">Hello, {{ current_user.name }}.</h1>
+                    <p class="text-secondary mb-0">You are operating inside <strong>{{ organization.name }}</strong>. All metrics are scoped to your organization and your role ({{ current_user.role.value }}).</p>
+                </div>
+                {% if is_admin and admin_metrics.overdue > 0 %}
+                <div class="alert alert-danger d-inline-flex align-items-center gap-2 py-2 px-3 mb-0 shadow-sm">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                    <span>{{ admin_metrics.overdue }} overdue requests</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between shadow-sm border-0">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="pill-icon bg-gradient-primary text-white"><i class="bi bi-speedometer2"></i></div>
+                        <div>
+                            <p class="text-uppercase fw-bold small mb-1 text-secondary">Control Center</p>
+                            <h2 class="h5 mb-0">Navigate your tools</h2>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        {% if is_admin %}
+                        <a class="btn btn-primary btn-lg" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-shield-lock me-2"></i>Admin Console</a>
+                        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('admin.add_user') }}"><i class="bi bi-person-plus me-2"></i>Add User</a>
+                        {% else %}
+                        <span class="badge text-bg-light border px-3 py-2"><i class="bi bi-check2-circle me-1 text-success"></i>Access verified</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-4" id="overview">
+    <div class="row g-3">
+        {% if is_admin %}
+            <div class="col-12">
+                <div class="row g-3">
+                    <div class="col-md-4 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-primary-subtle text-primary"><i class="bi bi-people"></i></div>
+                            <div class="mt-3 text-secondary small">Total Users</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.user_count }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-info-subtle text-info"><i class="bi bi-box-seam"></i></div>
+                            <div class="mt-3 text-secondary small">Equipment</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.equipment_count }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-warning-subtle text-warning"><i class="bi bi-wrench"></i></div>
+                            <div class="mt-3 text-secondary small">Maintenance Requests</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.request_count }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-danger-subtle text-danger"><i class="bi bi-hourglass-split"></i></div>
+                            <div class="mt-3 text-secondary small">New</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.new }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-primary-subtle text-primary"><i class="bi bi-lightning-charge"></i></div>
+                            <div class="mt-3 text-secondary small">In Progress</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.in_progress }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-success-subtle text-success"><i class="bi bi-check2-circle"></i></div>
+                            <div class="mt-3 text-secondary small">Repaired</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.repaired }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-secondary-subtle text-secondary"><i class="bi bi-recycle"></i></div>
+                            <div class="mt-3 text-secondary small">Scrap</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.scrap }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-danger-subtle text-danger"><i class="bi bi-exclamation-octagon"></i></div>
+                            <div class="mt-3 text-secondary small">Overdue</div>
+                            <div class="h4 mb-0 text-danger" data-countup-target="{{ admin_metrics.overdue }}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="metric-card shadow-sm card-animated">
+                            <div class="icon-badge bg-info-subtle text-success"><i class="bi bi-calendar-event"></i></div>
+                            <div class="mt-3 text-secondary small">Preventive Scheduled</div>
+                            <div class="h4 mb-0" data-countup-target="{{ admin_metrics.preventive }}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-md-4">
+                <div class="metric-card shadow-sm card-animated">
+                    <div class="icon-badge bg-primary-subtle text-primary"><i class="bi bi-person-workspace"></i></div>
+                    <div class="mt-3 text-secondary small">Assigned To You</div>
+                    <div class="h4 mb-0" data-countup-target="{{ user_metrics.assigned_total }}">0</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card shadow-sm card-animated">
+                    <div class="icon-badge bg-warning-subtle text-warning"><i class="bi bi-hourglass"></i></div>
+                    <div class="mt-3 text-secondary small">Open Assignments</div>
+                    <div class="h4 mb-0" data-countup-target="{{ user_metrics.open_assigned }}">0</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card shadow-sm card-animated">
+                    <div class="icon-badge bg-info-subtle text-info"><i class="bi bi-clipboard-data"></i></div>
+                    <div class="mt-3 text-secondary small">Requests You Filed</div>
+                    <div class="h4 mb-0" data-countup-target="{{ user_metrics.requested_total }}">0</div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="container pb-4" id="analytics">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="panel-card shadow-sm h-100 chart-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-collection-play text-primary"></i>Maintenance status</p>
+                        <h2 class="h5 mb-0">Requests by Status</h2>
+                    </div>
+                    <span class="badge rounded-pill ai-pill">Live</span>
+                </div>
+                <canvas id="statusChart" height="140"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="panel-card shadow-sm h-100 chart-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-pie-chart text-primary"></i>Distribution</p>
+                        <h2 class="h5 mb-0">Preventive vs Corrective</h2>
+                    </div>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold">Mix</span>
+                </div>
+                <canvas id="typeChart" height="160"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5" id="work">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="panel-card shadow-sm h-100 table-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1">Activity</p>
+                        <h2 class="h5 mb-0">Recent Maintenance Requests</h2>
+                        <p class="small text-secondary mb-0">Latest activity across your tenant.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary">Tenant scoped</span>
+                </div>
+                <div class="table-responsive table-shell">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th class="text-end">Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in recent_requests %}
+                            <tr>
+                                <td class="fw-semibold">{{ req.subject }}</td>
+                                <td>
+                                    {% if req.status.value == 'new' %}
+                                        <span class="badge rounded-pill text-bg-warning-subtle text-warning">New</span>
+                                    {% elif req.status.value == 'in_progress' %}
+                                        <span class="badge rounded-pill text-bg-primary-subtle text-primary">In Progress</span>
+                                    {% elif req.status.value == 'repaired' %}
+                                        <span class="badge rounded-pill text-bg-success-subtle text-success">Repaired</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill text-bg-secondary">Scrap</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if req.request_type.value == 'preventive' %}
+                                        <span class="badge text-bg-info-subtle text-info">Preventive</span>
+                                    {% else %}
+                                        <span class="badge text-bg-light border">Corrective</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge text-bg-light border text-capitalize">{{ req.priority }}</span></td>
+                                <td class="text-end small text-secondary">
+                                    {% if req.assigned_technician %}
+                                        <i class="bi bi-person-badge me-1 text-primary"></i>{{ req.assigned_technician.name }}
+                                    {% else %}
+                                        <span class="text-muted">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-secondary py-4">No requests logged yet for this organization.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="panel-card shadow-sm h-100 card-animated">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1">My workload</p>
+                        <h2 class="h5 mb-0">Assignments</h2>
+                        <p class="small text-secondary mb-0">What is on your plate right now.</p>
+                    </div>
+                    <i class="bi bi-clipboard-check text-success"></i>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="pill-icon bg-primary-subtle text-primary"><i class="bi bi-person-workspace"></i></div>
+                        <div>
+                            <div class="fw-semibold">Assignments in queue</div>
+                            <div class="text-secondary small">{{ user_metrics.assigned_total }} total, {{ user_metrics.open_assigned }} open</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="pill-icon bg-success-subtle text-success"><i class="bi bi-check2-circle"></i></div>
+                        <div>
+                            <div class="fw-semibold">Requests you filed</div>
+                            <div class="text-secondary small">{{ user_metrics.requested_total }} inside this tenant</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="pill-icon bg-info-subtle text-info"><i class="bi bi-shield-lock"></i></div>
+                        <div>
+                            <div class="fw-semibold">Tenant isolation</div>
+                            <div class="text-secondary small">Everything you see is filtered to {{ organization.name }} only.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (() => {
+        const statusCtx = document.getElementById('statusChart');
+        const typeCtx = document.getElementById('typeChart');
+        const statusLabels = {{ status_labels|tojson }};
+        const statusValues = {{ status_values|tojson }};
+        const typeLabels = {{ type_labels|tojson }};
+        const typeValues = {{ type_values|tojson }};
+
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        label: 'Requests',
+                        data: statusValues,
+                        backgroundColor: ['#fbbf24', '#4f46e5', '#22c55e', '#cbd5e1'],
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: { duration: 800 },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } },
+                    }
+                }
+            });
+        }
+
+        if (typeCtx) {
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        data: typeValues,
+                        backgroundColor: ['#0ea5e9', '#6366f1'],
+                        hoverOffset: 10,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '60%',
+                    animation: { duration: 900 },
+                    plugins: { legend: { position: 'bottom' } },
+                }
+            });
+        }
+    })();
+</script>
+{% endblock %}

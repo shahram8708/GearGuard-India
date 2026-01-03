@@ -1,0 +1,113 @@
+{% set endpoint = request.endpoint or '' %}
+<nav class="navbar navbar-expand-lg premium-nav" aria-label="Primary navigation">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-3 nav-brand" href="/" aria-label="GearGuard India home">
+            <span class="brand-mark shadow-soft"><img src="{{ url_for('static', filename='img/logo.png') }}?v={{ asset_version }}" alt="GearGuard India logo" class="brand-logo" width="40" height="40" loading="lazy"></span>
+            <div class="d-flex flex-column lh-1">
+                <span class="fw-bold">GearGuard India</span>
+            </div>
+        </a>
+        <div class="d-flex align-items-center gap-2 d-lg-none nav-meta-mobile">
+            {% if current_organization %}
+            <span class="badge org-pill text-bg-light border"><i class="bi bi-building me-1"></i>{{ current_organization.name }}</span>
+            {% endif %}
+            {% if current_user and current_user.is_authenticated %}
+            <span class="avatar-soft"><i class="bi bi-person-fill"></i></span>
+            {% endif %}
+            <button class="navbar-toggler shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center nav-lined gap-lg-1">
+                {% if current_user and current_user.is_authenticated %}
+                    {% if current_user.is_super_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('super_admin.dashboard') else '' }}" href="{{ url_for('super_admin.dashboard') }}">
+                                <i class="bi bi-shield-shaded"></i><span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('super_admin.organizations') else '' }}" href="{{ url_for('super_admin.organizations') }}">
+                                <i class="bi bi-buildings"></i><span>Organizations</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('super_admin.users') else '' }}" href="{{ url_for('super_admin.users') }}">
+                                <i class="bi bi-people-lock"></i><span>User</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('super_admin.security_center') else '' }}" href="{{ url_for('super_admin.security_center') }}">
+                                <i class="bi bi-activity"></i><span>Security</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('dashboard.overview') else '' }}" href="{{ url_for('dashboard.overview') }}">
+                                <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('dashboard.analytics') else '' }}" href="{{ url_for('dashboard.analytics') }}">
+                                <i class="bi bi-graph-up-arrow"></i><span>Analytics</span>
+                            </a>
+                        </li>
+                        {% if current_user.role.value == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('dashboard.ai_insights') else '' }}" href="{{ url_for('dashboard.ai_insights') }}">
+                                <i class="bi bi-stars"></i><span>Insights</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('admin.subscription') else '' }}" href="{{ url_for('admin.subscription') }}">
+                                <i class="bi bi-credit-card"></i><span>Subscription</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2" href="{{ url_for('dashboard.overview') }}#work">
+                                <i class="bi bi-kanban"></i><span>Orders</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('admin.maintenance_kanban') else '' }}" href="{{ url_for('admin.maintenance_kanban') }}">
+                                <i class="bi bi-view-stacked"></i><span>Maintenance</span>
+                            </a>
+                        </li>
+                        {% if current_user.role.value == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 {{ 'active' if endpoint.startswith('admin.dashboard') else '' }}" href="{{ url_for('admin.dashboard') }}">
+                                <i class="bi bi-shield-lock"></i><span>Controls</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if current_organization %}
+                        <li class="nav-item d-flex align-items-center ms-lg-2">
+                            <span class="badge org-pill text-bg-light border"><i class="bi bi-building me-1"></i>{{ current_organization.name }}</span>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 nav-user" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar-soft"><i class="bi bi-person-fill"></i></span>
+                            <span class="fw-semibold">{{ current_user.name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 py-2">
+                            <li><span class="dropdown-item-text text-secondary small d-flex align-items-center gap-2"><i class="bi bi-envelope"></i>{{ current_user.email }}</span></li>
+                            <li><span class="dropdown-item-text text-secondary small text-capitalize d-flex align-items-center gap-2"><i class="bi bi-shield-check"></i>Role: {{ current_user.role.value }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" href="{{ url_for('main.about_page') }}"><i class="bi bi-people"></i>About</a></li>
+                    <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" href="{{ url_for('main.support_page') }}"><i class="bi bi-life-preserver"></i>Support</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-gradient px-3" href="{{ url_for('main.register_organization') }}"><i class="bi bi-building-add me-2"></i>Create Organization</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-soft px-3" href="{{ url_for('main.login') }}"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-outline-primary px-3" href="{{ url_for('main.forgot_password') }}"><i class="bi bi-key me-2"></i>Reset Password</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

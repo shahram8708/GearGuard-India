@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Not Found · GearGuard{% endblock %}
+{% block content %}
+<div class="error-viewport">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card error-card border-0 rounded-4 shadow hover-lift">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="status-pill text-bg-secondary">404</span>
+                            <div>
+                                <p class="text-uppercase small fw-semibold text-secondary mb-1">Page missing</p>
+                                <h1 class="h4 mb-0">We can’t find that</h1>
+                            </div>
+                        </div>
+                        <div class="icon-burst text-secondary">
+                            <i class="bi bi-search"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary mb-4">{{ message or "The resource may be missing, removed, or restricted to your organization." }}</p>
+
+                    <div class="alert callout-soft-neutral d-flex align-items-center gap-3 mb-4">
+                        <div class="icon-badge text-secondary"><i class="bi bi-compass"></i></div>
+                        <div>
+                            <div class="fw-semibold">Try these steps</div>
+                            <div class="small text-secondary">Return to your dashboard, or check that the link belongs to your organization.</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-secondary">1</span>
+                                    <div>
+                                        <div class="fw-semibold">Navigate home</div>
+                                        <div class="small text-secondary">Head to your dashboard to pick up where you left off.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-secondary">2</span>
+                                    <div>
+                                        <div class="fw-semibold">Check the link</div>
+                                        <div class="small text-secondary">Confirm the URL belongs to your organization and hasn’t been archived.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-success"><i class="bi bi-geo-alt"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Quick destinations</div>
+                                        <div class="small text-secondary">Jump into maintenance boards or analytics without losing context.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-info"><i class="bi bi-headset"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">We can help</div>
+                                        <div class="small text-secondary">If the link should exist, notify your admin to restore or grant access.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a href="{{ url_for('dashboard.overview') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.maintenance_index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-kanban me-2"></i>Maintenance Board
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

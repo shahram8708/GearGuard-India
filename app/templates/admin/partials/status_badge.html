@@ -1,0 +1,16 @@
+{% set status_class = {
+    'new': 'status-pill status-new',
+    'in_progress': 'status-pill status-in_progress',
+    'repaired': 'status-pill status-repaired',
+    'scrap': 'status-pill status-scrap'
+}[req.status.value] %}
+<span class="{{ status_class }}">
+    {% if req.status == MaintenanceStatus.NEW %}<i class="bi bi-plus-circle me-1"></i>{% endif %}
+    {% if req.status == MaintenanceStatus.IN_PROGRESS %}<i class="bi bi-activity me-1"></i>{% endif %}
+    {% if req.status == MaintenanceStatus.REPAIRED %}<i class="bi bi-check-circle me-1"></i>{% endif %}
+    {% if req.status == MaintenanceStatus.SCRAP %}<i class="bi bi-x-octagon me-1"></i>{% endif %}
+    {{ req.status.value.replace('_',' ')|title }}
+</span>
+{% if req.is_overdue and req.status != MaintenanceStatus.SCRAP %}
+<span class="badge badge-overdue badge-overdue-pulse ms-1">Overdue</span>
+{% endif %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero position-relative overflow-hidden">
+    <div class="gradient-bg"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-start g-4">
+            <div class="col-lg-7">
+                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                    <span class="pill-soft"><i class="bi bi-shield-lock me-2"></i>Tenant-secure dashboard</span>
+                    <span class="pill-soft"><i class="bi bi-activity me-2"></i>Live posture</span>
+                    <span class="pill-soft"><i class="bi bi-phone-flip me-2"></i>Mobile-ready</span>
+                </div>
+                {% if current_user.is_authenticated %}
+                <h1 class="display-6 fw-bold mb-3">Welcome back, {{ current_user.name }}.</h1>
+                <p class="lead text-secondary mb-4">You are operating inside <strong>{{ current_organization.name }}</strong>. All requests are tenant-bound and role-enforced.</p>
+                {% else %}
+                <h1 class="display-6 fw-bold mb-3">Welcome to GearGuard.</h1>
+                <p class="lead text-secondary mb-4">Secure maintenance management for your organization. Sign in to view your tenant context.</p>
+                {% endif %}
+                <div class="cta-stack" id="cta">
+                    <a class="btn btn-primary btn-lg lift-sm" href="#org-snapshot"><i class="bi bi-lock-fill me-2"></i>View Access Snapshot</a>
+                    {% if current_user.is_authenticated and current_user.role.value == 'admin' %}
+                    <a class="btn btn-outline-primary btn-lg lift-sm" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer me-2"></i>Admin Panel</a>
+                    <a class="btn btn-outline-primary btn-lg lift-sm" href="{{ url_for('admin.add_user') }}"><i class="bi bi-person-plus me-2"></i>Add Org User</a>
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-wrap gap-3 mt-4 text-secondary safety-list">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-dot bg-success"></span>
+                        <span>CSRF + session hardening</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-dot bg-primary"></span>
+                        <span>Strict tenant isolation</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-dot bg-info"></span>
+                        <span>Role-aware routing</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="glass-card shadow-lg p-4 snapshot-card lift-sm" id="org-snapshot">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-shield-check"></i></span>
+                            <div>
+                                <span class="fw-semibold">Security Snapshot</span>
+                                <div class="text-secondary small">Real-time tenant health</div>
+                            </div>
+                        </div>
+                        <span class="badge text-bg-primary d-flex align-items-center gap-1"><span class="status-dot bg-success"></span>Live</span>
+                    </div>
+                    {% if current_user.is_authenticated %}
+                    <div class="metrics-grid mb-3">
+                        <div class="metric">
+                            <div class="text-secondary">Organization</div>
+                            <div class="h5 mb-0">{{ current_organization.name }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Role</div>
+                            <div class="h5 mb-0 text-capitalize">{{ current_user.role.value }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Status</div>
+                            <div class="h5 mb-0">{{ current_organization.status.value }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Sessions</div>
+                            <div class="h5 mb-0">Scoped</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="metrics-grid mb-3">
+                        <div class="metric">
+                            <div class="text-secondary">Organization</div>
+                            <div class="h5 mb-0">Sign in to view</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Role</div>
+                            <div class="h5 mb-0">Guest</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Status</div>
+                            <div class="h5 mb-0">—</div>
+                        </div>
+                        <div class="metric">
+                            <div class="text-secondary">Sessions</div>
+                            <div class="h5 mb-0">Public</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="subtle-separator"></div>
+                    <div class="d-grid gap-2 mt-3">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                            <span class="fw-semibold">Per-tenant login isolation enforced</span>
+                        </div>
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                            <span class="fw-semibold">Role checks wrap sensitive routes</span>
+                        </div>
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                            <span class="fw-semibold">Password hashing & reset tokens hardened</span>
+                        </div>
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                            <span class="fw-semibold">CSRF protection active on all forms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

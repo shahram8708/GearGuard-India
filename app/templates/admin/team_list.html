@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero {
+        position: relative;
+    }
+
+    .admin-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.9;
+        z-index: 0;
+    }
+
+    .hero-shell {
+        position: relative;
+        z-index: 1;
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 18px;
+        box-shadow: 0 18px 60px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+    }
+
+    .hero-ribbon {
+        background: linear-gradient(120deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.12));
+        border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+        padding: 14px 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .eyebrow {
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .helper-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .glass-card {
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 14px 44px rgba(15, 23, 42, 0.07);
+        backdrop-filter: blur(8px);
+    }
+
+    .lift {
+        transition: transform 140ms ease, box-shadow 180ms ease;
+    }
+
+    .lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 68px rgba(15, 23, 42, 0.1);
+    }
+
+    .table tr {
+        transition: background 140ms ease, transform 140ms ease;
+    }
+
+    .table tr:hover {
+        background: rgba(79, 70, 229, 0.04);
+        transform: translateY(-1px);
+    }
+
+    .table thead th {
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: .4px;
+    }
+
+    .action-pill {
+        border-radius: 12px;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.06), rgba(14, 165, 233, 0.06));
+        border: 1px solid rgba(79, 70, 229, 0.08);
+        font-weight: 700;
+    }
+
+    .btn-group .btn {
+        border-radius: 10px;
+    }
+
+    @media (max-width: 767.98px) {
+        .hero-ribbon {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero">
+    <div class="container-fluid px-lg-5">
+        <div class="hero-shell mb-4">
+            <div class="hero-ribbon">
+                <div>
+                    <div class="eyebrow text-uppercase mb-1">Field Operations</div>
+                    <h1 class="hero-title h4 mb-0">Maintenance Teams</h1>
+                    <p class="text-secondary small mb-0">Manage teams, membership, and equipment assignments. Tenant
+                        boundaries enforced.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <a class="btn btn-outline-primary smart-action-btn" href="{{ url_for('admin.equipment_index') }}"><i
+                            class="bi bi-cpu me-2"></i>Equipment</a>
+                    <a class="btn btn-primary smart-action-btn" href="{{ url_for('admin.team_create') }}"><i
+                            class="bi bi-plus-lg me-2"></i>Create Team</a>
+                </div>
+            </div>
+            <div class="p-3 d-flex flex-wrap gap-2">
+                <span class="helper-chip"><i class="bi bi-shield-lock"></i>Tenant isolated</span>
+                <span class="helper-chip"><i class="bi bi-people"></i>Unique names</span>
+                <span class="helper-chip"><i class="bi bi-diagram-3"></i>Linked to equipment</span>
+            </div>
+        </div>
+
+        <div class="glass-card p-0 lift">
+            <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-2 flex-wrap gap-2">
+                <div>
+                    <div class="fw-semibold">Teams overview</div>
+                    <div class="text-secondary x-small">Counts stay tenant-scoped; actions respect isolation.</div>
+                </div>
+                <span class="action-pill x-small d-flex align-items-center gap-2"><i class="bi bi-activity"></i> Live
+                    counts</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Team</th>
+                            <th>Description</th>
+                            <th class="text-center">Technicians</th>
+                            <th class="text-center">Equipment</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                        <tr>
+                            <td class="fw-semibold">{{ team.team_name }}</td>
+                            <td class="text-secondary">{{ team.description or '—' }}</td>
+                            <td class="text-center"><span class="badge text-bg-info"><i class="bi bi-people me-1"></i>{{
+                                    member_counts.get(team.id, 0) }}</span></td>
+                            <td class="text-center"><span class="badge text-bg-light border"><i
+                                        class="bi bi-cpu me-1"></i>{{ equipment_counts.get(team.id, 0) }}</span></td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                        href="{{ url_for('admin.team_detail', team_id=team.id) }}" title="Open"><i
+                                            class="bi bi-layout-text-window"></i></a>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                        href="{{ url_for('admin.team_edit', team_id=team.id) }}" title="Edit"><i
+                                            class="bi bi-pencil"></i></a>
+                                    <form method="POST" action="{{ url_for('admin.team_delete', team_id=team.id) }}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Delete this team? Only possible when empty.');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit" title="Delete"><i
+                                                class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-secondary py-4">No teams yet. Create your first
+                                maintenance team.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

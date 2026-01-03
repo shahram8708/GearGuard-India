@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="dashboard-hero position-relative overflow-hidden border-0 mb-3">
+    <div class="dashboard-gradient"></div>
+    <div class="container py-5 position-relative">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-shield-check me-1"></i>Tenant isolated</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-stars me-1"></i>GearGuard India powered</span>
+                    <span class="badge rounded-pill soft-pill"><i class="bi bi-lock-fill me-1"></i>No cross-tenant leakage</span>
+                </div>
+                <div>
+                    <p class="eyebrow text-uppercase mb-2">AI Intelligence</p>
+                    <h1 class="display-6 fw-bold mb-2">AI Insights for {{ organization.name }}</h1>
+                    <p class="text-secondary mb-0">Live guidance generated from your maintenance history. Only {{ organization.name }} context is sent to GearGuard India.</p>
+                </div>
+                {% if error_message %}
+                    <div class="alert alert-danger d-inline-flex align-items-center gap-2 py-2 px-3 mb-0 shadow-sm">
+                        <i class="bi bi-exclamation-octagon-fill"></i>
+                        <span>AI fallback: {{ error_message }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between shadow-sm border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="pill-icon bg-gradient-primary text-white"><i class="bi bi-cpu"></i></div>
+                        <div>
+                            <p class="text-uppercase fw-bold small mb-1 text-secondary">AI Session</p>
+                            <h2 class="h5 mb-0">Ready to refresh</h2>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('dashboard.analytics') }}"><i class="bi bi-graph-up me-2"></i>Back to Analytics</a>
+                        <a class="btn btn-primary btn-lg shadow-sm" href="{{ url_for('dashboard.ai_insights') }}"><i class="bi bi-arrow-clockwise me-2"></i>Refresh AI</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-4">
+    <div class="row g-3 mb-2">
+        <div class="col-md-4 col-lg-3">
+            <div class="metric-card h-100 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase small text-secondary mb-1">Assets in scope</p>
+                    <h3 class="h4 mb-0">{{ summary.equipment|length }}</h3>
+                </div>
+                <span class="icon-badge bg-primary bg-opacity-10 text-primary"><i class="bi bi-box-seam"></i></span>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="metric-card h-100 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase small text-secondary mb-1">Data quality</p>
+                    <h3 class="h4 mb-0">Real-time</h3>
+                </div>
+                <span class="icon-badge bg-success bg-opacity-10 text-success"><i class="bi bi-activity"></i></span>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="metric-card h-100 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase small text-secondary mb-1">Privacy</p>
+                    <h3 class="h4 mb-0">Tenant scoped</h3>
+                </div>
+                <span class="icon-badge bg-info bg-opacity-10 text-info"><i class="bi bi-shield-lock"></i></span>
+            </div>
+        </div>
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="metric-card h-100 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase small text-secondary mb-1">AI freshness</p>
+                    <h3 class="h4 mb-0">Live</h3>
+                </div>
+                <span class="icon-badge bg-warning bg-opacity-10 text-warning"><i class="bi bi-lightning-charge"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="analytics-card h-100 shadow-sm border-0 ai-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-bullseye text-danger"></i>
+                            <p class="eyebrow text-uppercase mb-0">Risk Radar</p>
+                        </div>
+                        <h2 class="h5 mb-1">Top Risk Equipments</h2>
+                        <p class="small text-secondary mb-0">Highest probability of downtime; prioritize inspection.</p>
+                    </div>
+                    <span class="badge rounded-pill ai-pill">AI Generated</span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    {% for item in ai_blocks.top_risk %}
+                        <div class="ai-chip d-flex align-items-start gap-2">
+                            <span class="status-dot status-new"></span>
+                            <span>{{ item }}</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">No AI guidance available. Configure the GearGuard India API key.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="analytics-card h-100 shadow-sm border-0 ai-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-activity text-danger"></i>
+                            <p class="eyebrow text-uppercase mb-0">Predictive</p>
+                        </div>
+                        <h2 class="h5 mb-1">Most Likely to Break</h2>
+                        <p class="small text-secondary mb-0">Forecasted failures in the next period—pre-stage parts.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-danger-subtle text-danger fw-semibold">Signal</span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    {% for item in ai_blocks.likely_break %}
+                        <div class="ai-chip text-danger d-flex align-items-start gap-2">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            <span>{{ item }}</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">AI could not generate this section.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-3 mt-1">
+        <div class="col-lg-6">
+            <div class="analytics-card h-100 shadow-sm border-0 ai-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-lightning-charge text-warning"></i>
+                            <p class="eyebrow text-uppercase mb-0">Efficiency</p>
+                        </div>
+                        <h2 class="h5 mb-1">Maintenance Efficiency Suggestions</h2>
+                        <p class="small text-secondary mb-0">Reduce truck rolls and compress service time.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-warning-subtle text-warning fw-semibold">Time saver</span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    {% for item in ai_blocks.efficiency %}
+                        <div class="ai-chip text-warning d-flex align-items-start gap-2">
+                            <i class="bi bi-gear-wide-connected"></i>
+                            <span>{{ item }}</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">No suggestions returned.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="analytics-card h-100 shadow-sm border-0 ai-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-compass text-primary"></i>
+                            <p class="eyebrow text-uppercase mb-0">Operations</p>
+                        </div>
+                        <h2 class="h5 mb-1">Operational Improvement Insights</h2>
+                        <p class="small text-secondary mb-0">Coaching for scheduling, staffing, and task routing.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold">Process</span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    {% for item in ai_blocks.ops %}
+                        <div class="ai-chip text-primary d-flex align-items-start gap-2">
+                            <i class="bi bi-bezier"></i>
+                            <span>{{ item }}</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">AI did not return operational tips.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <div class="glass-card shadow-sm p-4 border-0">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <p class="eyebrow text-uppercase mb-1 d-flex align-items-center gap-2"><i class="bi bi-database-lock text-primary"></i>Data Provided to GearGuard India</p>
+                <h2 class="h6 mb-1">Context Snapshot ({{ summary.equipment|length }} assets)</h2>
+                <p class="small text-secondary mb-0">Only essential equipment attributes and counts are shared per request.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill soft-pill"><i class="bi bi-shield-check me-1"></i>Tenant scoped</span>
+                <span class="badge rounded-pill soft-pill"><i class="bi bi-clock-history me-1"></i>Refresh on demand</span>
+            </div>
+        </div>
+        <div class="table-responsive shadow-sm rounded-3 overflow-hidden">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="bi bi-box me-1"></i>Name</th>
+                        <th><i class="bi bi-tag me-1"></i>Category</th>
+                        <th>Status</th>
+                        <th class="text-end">Requests</th>
+                        <th class="text-end">Overdue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in summary.equipment %}
+                        <tr>
+                            <td class="fw-semibold">{{ item.name }}</td>
+                            <td class="text-secondary">{{ item.category }}</td>
+                            <td><span class="badge text-bg-light border text-uppercase">{{ item.status.replace('_',' ') }}</span></td>
+                            <td class="text-end">{{ item.request_count }}</td>
+                            <td class="text-end">{{ item.overdue_count }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="text-center text-secondary py-3">No equipment found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero glass-card mb-4 p-4 p-md-5 privacy-hero">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
+        <div>
+            <div class="eyebrow text-uppercase mb-2">Privacy Policy</div>
+            <h1 class="display-6 fw-bold mb-3">We protect your data and your trust.</h1>
+            <p class="lead mb-0">This Privacy Policy explains how GearGuard India collects, uses, secures, and shares information. Our commitment: privacy by design, tenant isolation, and transparent controls.</p>
+        </div>
+        <div class="d-flex flex-column align-items-start gap-2 text-end">
+            <div class="badge text-bg-primary px-3 py-2"><i class="bi bi-shield-lock me-2"></i>Updated December 2025</div>
+            <span class="pill-soft"><i class="bi bi-cloud-lock-fill me-2"></i>Tenant isolated</span>
+            <span class="pill-soft"><i class="bi bi-clipboard2-data me-2"></i>Data minimization</span>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-collection"></i><span class="fw-semibold">1. What we collect</span></div>
+                <ul class="text-secondary">
+                    <li>Account data: name, email, organization details, role, authentication metadata.</li>
+                    <li>Operational data: assets, maintenance jobs, schedules, audit logs, and workflow content you create.</li>
+                    <li>Technical data: device/browser identifiers, IP address, timestamps, performance signals, and security events.</li>
+                    <li>Billing data: payment references via PCI-DSS compliant processors (e.g., Razorpay). We do not store card numbers.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-bullseye"></i><span class="fw-semibold">2. Why we collect</span></div>
+                <ul class="text-secondary">
+                    <li>To deliver the platform, authenticate users, and enforce tenant isolation.</li>
+                    <li>To operate maintenance workflows, notifications, AI recommendations, and analytics.</li>
+                    <li>To secure the service: detect abuse, investigate incidents, and meet compliance obligations.</li>
+                    <li>To improve features and reliability based on aggregated and anonymized usage insights.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-shield-check"></i><span class="fw-semibold">3. How we secure data</span></div>
+                <ul class="text-secondary">
+                    <li>Encryption in transit (TLS) and at rest for supported services.</li>
+                    <li>Strict RBAC, MFA enforcement options, audit logs, and least-privilege operational access.</li>
+                    <li>Backups, disaster recovery runbooks, and quarterly security reviews.</li>
+                    <li>Data residency: primary storage in India regions unless contractually agreed otherwise.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-diagram-3"></i><span class="fw-semibold">4. Third-party services</span></div>
+                <p class="text-secondary">We use vetted sub-processors to run the service:</p>
+                <ul class="text-secondary">
+                    <li>Payments: Razorpay or equivalent for subscription charges.</li>
+                    <li>Email delivery: transactional email providers for OTP, alerts, and support notices.</li>
+                    <li>AI: model providers to generate insights; prompts and outputs are scoped to your tenant and not used to train public models.</li>
+                    <li>Monitoring and logging: observability tools to detect reliability or security issues.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-cookie"></i><span class="fw-semibold">5. Cookies & preferences</span></div>
+                <ul class="text-secondary">
+                    <li>Essential cookies maintain sessions and security controls.</li>
+                    <li>Optional analytics cookies (if enabled) are used to improve UX; you can opt out where applicable.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-archive"></i><span class="fw-semibold">6. Data retention</span></div>
+                <ul class="text-secondary">
+                    <li>We retain account and operational data for the duration of your subscription and as required for legal or audit purposes.</li>
+                    <li>Support requests and security logs may be retained to investigate abuse and improve defenses.</li>
+                    <li>Upon termination, data is deleted or anonymized after any agreed export window unless law requires longer retention.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-person-check"></i><span class="fw-semibold">7. Your rights</span></div>
+                <ul class="text-secondary">
+                    <li>Access and update your profile and organization information.</li>
+                    <li>Request export of your organization data, subject to verification and security checks.</li>
+                    <li>Request deletion where legally permissible; some records may be retained for audit, billing, or security obligations.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-cpu"></i><span class="fw-semibold">8. AI processing statement</span></div>
+                <ul class="text-secondary">
+                    <li>AI features are optional and tenant-scoped. Inputs and outputs remain within your tenant boundary.</li>
+                    <li>We do not use your prompts or data to train public models. Providers are bound by confidentiality and data protection commitments.</li>
+                    <li>AI recommendations are advisory; final decisions remain with your authorized users.</li>
+                </ul>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-emoji-frown"></i><span class="fw-semibold">9. Children's data</span></div>
+                <p class="text-secondary">GearGuard is not intended for children under 16 and does not knowingly collect their personal data.</p>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-globe2"></i><span class="fw-semibold">10. International & GDPR mindset</span></div>
+                <p class="text-secondary">While we operate primarily in India, we apply GDPR-aligned principles: purpose limitation, data minimization, access controls, and breach notification commitments consistent with applicable law.</p>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-arrow-repeat"></i><span class="fw-semibold">11. Updates to this policy</span></div>
+                <p class="text-secondary">We may update this policy to reflect changes in law, security, or product capabilities. Material updates will be communicated via email or in-product notices.</p>
+            </div>
+            <div class="legal-card lift-sm">
+                <div class="d-flex align-items-center gap-2 mb-2 text-primary"><i class="bi bi-envelope-paper-heart"></i><span class="fw-semibold">12. Contact for privacy</span></div>
+                <p class="text-secondary mb-2">For privacy questions or to exercise rights, contact privacy@gearguard.in or submit through our <a href="{{ url_for('main.support_page') }}" class="link-primary">support desk</a>.</p>
+                <p class="text-secondary mb-0">We respond to verified requests and may require additional information to protect tenants and users.</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-elevated p-4 h-100 lift-sm privacy-aside">
+                <div class="d-flex align-items-center gap-2 mb-3 text-primary"><i class="bi bi-lock"></i><span class="fw-semibold">Privacy at a glance</span></div>
+                <ul class="list-unstyled text-secondary small mb-4 d-grid gap-2">
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Tenant data isolated and audited</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Encryption in transit & at rest</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>MFA, RBAC, and scoped sessions</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>Backups with disaster recovery drills</span></li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><span>AI usage is optional and tenant-bound</span></li>
+                </ul>
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="icon-circle text-primary bg-primary-subtle"><i class="bi bi-life-preserver"></i></span>
+                        <div>
+                            <div class="fw-semibold">Need to escalate?</div>
+                            <div class="text-secondary small">Security and privacy reviews available.</div>
+                        </div>
+                    </div>
+                    <a class="btn btn-primary w-100" href="{{ url_for('main.support_page') }}"><i class="bi bi-chat-dots me-2"></i>Contact support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

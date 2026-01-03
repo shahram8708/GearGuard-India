@@ -1,0 +1,58 @@
+<footer class="py-5 mt-auto ">
+    <div class="container">
+        <div class="footer-shell">
+            <div class="footer-brand card-elevated p-4 h-100">
+                <a class="d-flex align-items-center mb-3 text-decoration-none" href="/" aria-label="GearGuard India home">
+                    <span class="brand-mark shadow-soft me-3"><img src="{{ url_for('static', filename='img/logo.png') }}?v={{ asset_version }}" alt="GearGuard India logo" class="brand-logo" width="40" height="40" loading="lazy"></span>
+                    <div class="d-flex flex-column lh-1">
+                        <span class="fw-semibold">GearGuard India</span>
+                        <small class="text-secondary">Industrial reliability for India</small>
+                    </div>
+                </a>
+                <p class="text-secondary mb-3">Resilient maintenance cloud with AI insights, compliance, and uptime guardrails for asset-heavy teams.</p>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge text-bg-light border px-3 py-2"><i class="bi bi-shield-check me-2"></i>Tenant safe</span>
+                    <span class="badge text-bg-light border px-3 py-2"><i class="bi bi-lightning-charge-fill me-2"></i>Realtime sync</span>
+                    <span class="badge text-bg-light border px-3 py-2"><i class="bi bi-geo-alt me-2"></i>Built for India</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 mt-3 text-secondary small">
+                    <span class="d-inline-flex align-items-center gap-2"><i class="bi bi-shield-lock"></i>ISO-ready controls</span>
+                    <span class="d-inline-flex align-items-center gap-2"><i class="bi bi-cloud-check"></i>99.9% uptime target</span>
+                </div>
+                <small class="text-secondary d-block mt-3">© <span data-current-year>2025</span> GearGuard India</small>
+            </div>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="footer-card card-elevated h-100 p-3">
+                        <div class="section-heading mb-3 align-items-center"><span class="icon-circle"><i class="bi bi-stars"></i></span><h6 class="mb-0 text-uppercase text-secondary x-small">Product</h6></div>
+                        <ul class="list-unstyled footer-links mb-0">
+                            <li><a href="#features"><i class="bi bi-magic me-2"></i>Platform capabilities</a></li>
+                            <li><a href="#uptime"><i class="bi bi-activity me-2"></i>Reliability & uptime</a></li>
+                            <li><a href="{{ url_for('main.support_page') }}"><i class="bi bi-rocket-takeoff me-2"></i>Onboarding help</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="footer-card card-elevated h-100 p-3">
+                        <div class="section-heading mb-3 align-items-center"><span class="icon-circle"><i class="bi bi-building"></i></span><h6 class="mb-0 text-uppercase text-secondary x-small">Company</h6></div>
+                        <ul class="list-unstyled footer-links mb-0">
+                            <li><a href="{{ url_for('main.about_page') }}"><i class="bi bi-people me-2"></i>About GearGuard India</a></li>
+                            <li><a href="{{ url_for('main.privacy_page') }}"><i class="bi bi-shield-check me-2"></i>Privacy</a></li>
+                            <li><a href="{{ url_for('main.terms_page') }}"><i class="bi bi-file-earmark-text me-2"></i>Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="footer-card card-elevated h-100 p-3">
+                        <div class="section-heading mb-3 align-items-center"><span class="icon-circle"><i class="bi bi-chat-dots"></i></span><h6 class="mb-0 text-uppercase text-secondary x-small">Connect</h6></div>
+                        <ul class="list-unstyled footer-links mb-0">
+                            <li><a href="{{ url_for('main.support_page') }}"><i class="bi bi-headset me-2"></i>Support desk</a></li>
+                            <li><a href="mailto:security@gearguard.in"><i class="bi bi-shield-lock me-2"></i>Report security</a></li>
+                            <li><a href="mailto:billing@gearguard.in"><i class="bi bi-credit-card me-2"></i>Billing queries</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

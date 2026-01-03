@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(40px);
+        opacity: 0.45;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 260px;
+        height: 260px;
+        background: rgba(91, 75, 255, 0.15);
+        top: -80px;
+        left: -60px;
+    }
+    .admin-hero-shell::after {
+        width: 280px;
+        height: 280px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -120px;
+        right: -80px;
+    }
+    .page-header-card {
+        background: linear-gradient(135deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.08));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .frosted-card {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 18px;
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        backdrop-filter: blur(6px);
+        transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .frosted-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 26px 90px rgba(15, 23, 42, 0.14);
+    }
+    .input-shell {
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .input-shell:focus-within {
+        border-color: rgba(91, 75, 255, 0.45);
+        box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.12);
+        background: #fff;
+    }
+    .input-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(91, 75, 255, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #5b4bff;
+        margin-right: 10px;
+    }
+    .hint-text {
+        color: #475569;
+    }
+    .pill-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 16px 50px rgba(15, 23, 42, 0.05);
+    }
+    .btn.is-loading {
+        cursor: wait;
+        opacity: 0.9;
+    }
+    @media (max-width: 767px) {
+        .page-header-card { border-radius: 16px; }
+        .frosted-card { border-radius: 14px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center g-4">
+            <div class="col-12">
+                <div class="page-header-card p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="icon-circle shadow-soft"><i class="bi bi-person-gear"></i></span>
+                            <div>
+                                <div class="eyebrow text-uppercase mb-1">Update User</div>
+                                <h1 class="h4 mb-1">{{ user.name }}</h1>
+                                <p class="mb-0 text-secondary">Modify role or status within {{ current_organization.name }}.</p>
+                            </div>
+                        </div>
+                        <div class="pill-check small text-success fw-semibold"><i class="bi bi-shield-lock"></i> Tenant-aware safeguard</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="frosted-card p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">User profile</div>
+                            <h2 class="h5 mb-1">Adjust account details</h2>
+                            <p class="hint-text small mb-0">Update contact info, role, and activation status. Changes apply immediately.</p>
+                        </div>
+                        <span class="icon-circle"><i class="bi bi-person-badge"></i></span>
+                    </div>
+
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                {{ form.name.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-person"></i></span>
+                                        {{ form.name(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="Full name") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Appears in approvals, tasks, and audit logs.</span>
+                                    {% for error in form.name.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.email.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-envelope"></i></span>
+                                        {{ form.email(class="form-control form-control-lg border-0 bg-transparent ps-0", placeholder="user@company.com", autocomplete="email") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Used for notifications, OTPs, and login recovery.</span>
+                                    {% for error in form.email.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.role.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-diagram-3"></i></span>
+                                        {{ form.role(class="form-select form-select-lg border-0 bg-transparent ps-0") }}
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start justify-content-between mt-1 flex-wrap gap-2">
+                                    <span class="text-secondary small">Roles apply least privilege. Admins manage users; members stay focused.</span>
+                                    {% for error in form.role.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check form-switch ps-0 d-flex align-items-center gap-3">
+                                    <div class="input-icon"><i class="bi bi-activity"></i></div>
+                                    <div>
+                                        {{ form.active(class="form-check-input", id="active_status") }}
+                                        <label class="form-check-label fw-semibold" for="active_status">Active</label>
+                                        <div class="text-secondary small">Disable to pause access without removal.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-4 shadow-soft d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-save"></i>
+                                <span>{{ form.submit.label.text }}</span>
+                            </button>
+                            <div class="d-flex align-items-center gap-2 text-secondary small">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Protected by tenant isolation and admin safeguards.</span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border mt-4 mb-0 d-flex align-items-start gap-3">
+                            <span class="icon-circle flex-shrink-0"><i class="bi bi-info-lg"></i></span>
+                            <div>
+                                <div class="fw-semibold mb-1">Safeguard</div>
+                                <p class="text-secondary small mb-0">At least one active admin is required per organization. Demoting or deactivating the final admin is blocked.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

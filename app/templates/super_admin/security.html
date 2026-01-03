@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-4 root-console">
+  <div class="root-hero mb-4 position-relative overflow-hidden">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <div class="d-inline-flex align-items-center gap-2 text-uppercase eyebrow text-white-50">
+          <span class="badge-dot bg-danger"></span>
+          <span>Security NOC</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+          <h1 class="h4 mb-0 text-white">Security & Abuse Center</h1>
+          <span class="badge border border-light text-white bg-transparent rounded-pill">Root Authority</span>
+        </div>
+        <p class="text-white-75 mb-2">Monitor root attempts, OTP abuse, and attack surfaces. All actions are audited.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-shield-lock me-2"></i>Real-time guardrails</span>
+          <span class="chip-soft text-white border border-white-25"><i class="bi bi-activity me-2"></i>Live telemetry</span>
+        </div>
+      </div>
+      <div class="text-end d-flex flex-column align-items-end gap-2">
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-lock-fill text-success"></i>Privileged access monitored</span>
+        <span class="text-white-75 small d-flex align-items-center gap-2"><i class="bi bi-hdd-network"></i>Network edge protection</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 g-lg-4">
+    <div class="col-lg-5">
+      <div class="root-panel root-panel-elevated h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="eyebrow text-uppercase text-white-50">Directives</div>
+            <h5 class="mb-0 text-white d-flex align-items-center gap-2"><i class="bi bi-shield-shaded"></i><span>Issue Security Action</span></h5>
+          </div>
+        </div>
+        <form method="POST" class="d-grid gap-3">
+          {{ form.hidden_tag() }}
+          <div>
+            <label class="form-label fw-semibold text-white">Action Code</label>
+            {{ form.action(class="form-control form-control-lg bg-white text-dark border-light", placeholder="lock_ip / notify / rotate_keys") }}
+          </div>
+          <div>
+            <label class="form-label fw-semibold text-white">Target</label>
+            {{ form.target(class="form-control form-control-lg bg-white text-dark border-light", placeholder="IP, user email, org slug") }}
+          </div>
+          <div>
+            <label class="form-label fw-semibold text-white">Reason</label>
+            {{ form.note(class="form-control bg-white text-dark border-light", rows=3, placeholder="Why is this action required?") }}
+          </div>
+          <button class="btn btn-danger w-100 btn-lg" type="submit"><i class="bi bi-shield-lock-fill me-2"></i><span class="btn-label">Log Action</span><span class="spinner-border spinner-border-sm submit-spinner" role="status" aria-hidden="true"></span></button>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="root-panel root-panel-elevated h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="eyebrow text-uppercase text-white-50">Latest Events</div>
+            <h5 class="mb-0 text-white d-flex align-items-center gap-2"><i class="bi bi-activity"></i><span>Security Timeline</span></h5>
+          </div>
+        </div>
+        {% if recent_events %}
+        <div class="list-group list-group-flush root-feed">
+          {% for event in recent_events %}
+          <div class="list-group-item bg-transparent text-white d-flex align-items-start gap-3">
+            <div class="feed-dot {{ 'bg-danger' if event.severity in ['critical','high'] else 'bg-secondary' }}"></div>
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="fw-semibold text-capitalize">{{ event.event_type.replace('_', ' ') }}</div>
+                <span class="badge feed-pill text-bg-{{ 'danger' if event.severity in ['critical','high'] else 'secondary' }}">{{ event.severity }}</span>
+              </div>
+              <div class="text-secondary small">{{ event.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ event.actor_email or 'system' }} · {{ event.ip_address or 'n/a' }}</div>
+              {% if event.meta %}
+              <div class="text-secondary x-small">Meta: {{ event.meta }}</div>
+              {% endif %}
+            </div>
+            <i class="bi bi-chevron-right text-secondary"></i>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-4">
+          <div class="icon-circle bg-white-10 mb-2"><i class="bi bi-shield-check"></i></div>
+          <div class="fw-semibold text-white">No events yet.</div>
+          <div class="text-secondary small">Live timeline will populate as signals arrive.</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

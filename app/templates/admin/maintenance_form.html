@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .admin-hero-shell {
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero-shell::before,
+    .admin-hero-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(44px);
+        opacity: 0.48;
+        pointer-events: none;
+    }
+    .admin-hero-shell::before {
+        width: 280px;
+        height: 280px;
+        background: rgba(91, 75, 255, 0.14);
+        top: -100px;
+        left: -70px;
+    }
+    .admin-hero-shell::after {
+        width: 320px;
+        height: 320px;
+        background: rgba(46, 211, 183, 0.18);
+        bottom: -130px;
+        right: -80px;
+    }
+    .page-header-card {
+        background: linear-gradient(120deg, rgba(91, 75, 255, 0.12), rgba(46, 211, 183, 0.1));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
+    .frosted-card {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 18px;
+        box-shadow: 0 20px 70px rgba(15, 23, 42, 0.1);
+        backdrop-filter: blur(6px);
+        transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .frosted-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 26px 90px rgba(15, 23, 42, 0.14);
+    }
+    .input-shell {
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .input-shell:focus-within {
+        border-color: rgba(91, 75, 255, 0.45);
+        box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.12);
+        background: #fff;
+    }
+    .input-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(91, 75, 255, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #5b4bff;
+        margin-right: 10px;
+    }
+    .hint-text { color: #475569; }
+    .btn.is-loading { cursor: wait; opacity: 0.9; }
+    @media (max-width: 767px) {
+        .page-header-card { border-radius: 16px; }
+        .frosted-card { border-radius: 14px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero-shell">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center g-4">
+            <div class="col-12">
+                <div class="page-header-card p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">Workflow Engine</div>
+                            <h1 class="h4 mb-1">{{ page_title }}</h1>
+                            <p class="text-secondary small mb-0">Requests auto-attach equipment context, teams, and technicians with tenant isolation.</p>
+                        </div>
+                        <a class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center" href="{{ url_for('admin.maintenance_index') }}"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-10 col-xl-8">
+                <div class="frosted-card p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <div class="eyebrow text-uppercase mb-1">Maintenance request</div>
+                            <h2 class="h5 mb-1">Capture the essentials</h2>
+                            <p class="hint-text small mb-0">Clear details help routing, scheduling, and AI enrichment.</p>
+                        </div>
+                        <span class="icon-circle"><i class="bi bi-clipboard-check"></i></span>
+                    </div>
+
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                {{ form.subject.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-bullseye"></i></span>
+                                        {{ form.subject(class="form-control border-0 bg-transparent ps-0", placeholder="e.g., Replace gearbox oil") }}
+                                    </div>
+                                </div>
+                                {% for error in form.subject.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-md-12">
+                                {{ form.description.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">Describe symptoms or planned preventive task</span>
+                                    <button class="btn btn-link btn-sm text-decoration-none" type="button" data-ai-enhance-btn data-ai-enhance-url="{{ url_for('admin.maintenance_ai_enhance_description') }}">
+                                        <i class="bi bi-stars me-1"></i>Enhance description with AI
+                                    </button>
+                                </div>
+                                <div class="input-shell">
+                                    {{ form.description(class="form-control border-0 bg-transparent", rows="4", placeholder="Describe symptoms or planned preventive task", **{'data-ai-enhance-target': 'true'}) }}
+                                </div>
+                                <div class="text-secondary x-small mt-1" id="aiEnhanceHint">AI will keep this editable and tenant-safe.</div>
+                                {% for error in form.description.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ form.request_type.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-diagram-3"></i></span>
+                                        {{ form.request_type(class="form-select border-0 bg-transparent ps-0") }}
+                                    </div>
+                                </div>
+                                {% for error in form.request_type.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.priority.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-thermometer-half"></i></span>
+                                        {{ form.priority(class="form-select border-0 bg-transparent ps-0") }}
+                                    </div>
+                                </div>
+                                {% for error in form.priority.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.scheduled_date.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-calendar-event"></i></span>
+                                        {{ form.scheduled_date(class="form-control border-0 bg-transparent ps-0", type="date") }}
+                                    </div>
+                                </div>
+                                {% for error in form.scheduled_date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-md-12">
+                                {{ form.equipment_id.label(class="form-label fw-semibold text-uppercase small text-secondary mb-1") }}
+                                <div class="input-shell">
+                                    <div class="d-flex align-items-center">
+                                        <span class="input-icon"><i class="bi bi-cpu"></i></span>
+                                        {{ form.equipment_id(class="form-select border-0 bg-transparent ps-0") }}
+                                    </div>
+                                </div>
+                                {% for error in form.equipment_id.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                            <div class="d-flex align-items-center gap-2 text-secondary small">
+                                <i class="bi bi-shield-lock"></i>
+                                <span>Submitting snapshots equipment, links team, and suggests a technician.</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg px-4 shadow-soft d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-send"></i>
+                                <span>{{ form.submit.label.text }}</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

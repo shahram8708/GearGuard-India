@@ -1,0 +1,558 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+<style>
+    .admin-hero { position: relative; }
+    .admin-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 12% 18%, rgba(79,70,229,0.12), transparent 32%), radial-gradient(circle at 82% 8%, rgba(14,165,233,0.12), transparent 28%), linear-gradient(120deg, rgba(79,70,229,0.06), rgba(14,165,233,0.05)); opacity: 0.9; z-index: 0; }
+    .admin-hero .hero-surface { position: relative; z-index: 1; background: #ffffff; border: 1px solid rgba(15,23,42,0.08); border-radius: 18px; box-shadow: 0 18px 60px rgba(15,23,42,0.06); overflow: hidden; }
+    .hero-ribbon { background: linear-gradient(120deg, rgba(79,70,229,0.12), rgba(14,165,233,0.12)); border-bottom: 1px solid rgba(79,70,229,0.08); padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .hero-title { font-weight: 800; letter-spacing: -0.02em; }
+    .eyebrow { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: #64748b; }
+    .action-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 14px; background: rgba(15,23,42,0.04); border: 1px solid rgba(15,23,42,0.06); font-weight: 600; color: #0f172a; }
+    .action-chip i { color: #4f46e5; }
+
+    .stat-card { border-radius: 16px; padding: 14px; border: 1px solid rgba(15,23,42,0.06); background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,250,252,0.9)); box-shadow: 0 16px 46px rgba(15,23,42,0.06); transition: transform 120ms ease, box-shadow 120ms ease; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 22px 60px rgba(15,23,42,0.08); }
+    .stat-value { font-weight: 800; font-size: 1.7rem; }
+    .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #6b7280; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-flex; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.7); }
+    .status-dot.status-new { background: #60a5fa; }
+    .status-dot.status-in_progress { background: #fbbf24; }
+    .status-dot.status-repaired { background: #22c55e; }
+    .status-dot.status-scrap { background: #94a3b8; }
+    .badge-soft { background: rgba(15,23,42,0.05); border: 1px solid rgba(15,23,42,0.08); color: #0f172a; }
+    .badge-overdue { background: #fee2e2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .badge-overdue-pulse { animation: subtlePulse 1.6s ease-in-out infinite; }
+    @keyframes subtlePulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.25);} 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0.02);} 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0);} }
+
+    .glass-card { border-radius: 16px; border: 1px solid rgba(15,23,42,0.06); background: rgba(255,255,255,0.94); box-shadow: 0 14px 44px rgba(15,23,42,0.06); backdrop-filter: blur(10px); }
+    .calendar-shell { position: relative; overflow: hidden; border-radius: 16px; }
+    .calendar-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 5; }
+    .fc .fc-toolbar-title { font-weight: 800; }
+    .fc .fc-button-primary { background: linear-gradient(135deg, #0ea5e9, #4f46e5); border: none; box-shadow: 0 10px 30px -12px rgba(79,70,229,.35); border-radius: 12px; }
+    .fc .fc-button-primary:not(:disabled).fc-button-active, .fc .fc-button-primary:not(:disabled):active { background: #0d6efd; }
+    .fc .fc-daygrid-event-harness { margin-bottom: 6px; }
+    .fc-event-rich { padding: 8px 10px; background: #0b1727; color: #eef2ff; border-radius: 10px; box-shadow: 0 10px 24px -14px rgba(0,0,0,.35); }
+    .fc-event.req-overdue .fc-event-rich { border: 1px solid #ef4444; box-shadow: 0 12px 24px -12px rgba(239,68,68,.45); }
+    .fc-event.req-new .fc-event-rich { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #0f172a; }
+    .fc-event.req-in_progress .fc-event-rich { background: linear-gradient(135deg, #fff7ed, #fef3c7); color: #1f2937; }
+    .fc-event.req-repaired .fc-event-rich { background: linear-gradient(135deg, #ecfdf3, #d1fae5); color: #065f46; }
+    .fc-event.req-scrap .fc-event-rich { background: linear-gradient(135deg, #f8fafc, #e2e8f0); color: #475569; }
+
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-flex; }
+    .legend-dot.blue { background: linear-gradient(135deg, #60a5fa, #2563eb); }
+    .legend-dot.yellow { background: linear-gradient(135deg, #facc15, #eab308); }
+    .legend-dot.green { background: linear-gradient(135deg, #34d399, #059669); }
+    .legend-dot.red { background: linear-gradient(135deg, #f87171, #ef4444); }
+    .pill-soft { border-radius: 999px; background: #f8fafc; padding: 6px 12px; }
+    .x-small { font-size: 12px; }
+    .calendar-legend .badge { font-weight: 700; }
+    .list-group-item { border: none; }
+    .list-group-item + .list-group-item { border-top: 1px solid rgba(15,23,42,0.05); }
+    .table tr { transition: background 160ms ease, transform 120ms ease; }
+    .table tr:hover { transform: translateY(-1px); background: rgba(79,70,229,0.04); }
+    .table tr.table-scrap { background: linear-gradient(90deg, rgba(148,163,184,0.08), rgba(148,163,184,0.02)); }
+    .table thead th { text-transform: uppercase; font-size: 12px; letter-spacing: .4px; }
+
+    .filter-chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 12px; background: rgba(15,23,42,0.04); border: 1px solid rgba(15,23,42,0.06); font-weight: 600; color: #0f172a; }
+    .info-pill { border-radius: 12px; padding: 8px 12px; background: linear-gradient(135deg, rgba(79,70,229,0.06), rgba(14,165,233,0.06)); border: 1px solid rgba(79,70,229,0.08); }
+
+    .smart-action-btn { transition: transform 120ms ease, box-shadow 160ms ease; }
+    .smart-action-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .smart-action-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(15,23,42,0.14); }
+
+    @media (max-width: 767.98px) {
+        .hero-ribbon { align-items: flex-start; }
+        .table-responsive { border-radius: 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 admin-hero">
+    <div class="container-fluid px-lg-5">
+        <div class="hero-surface mb-4">
+            <div class="hero-ribbon">
+                <div>
+                    <div class="eyebrow">Preventive Operations</div>
+                    <h1 class="hero-title h4 mb-1">Preventive Maintenance Calendar</h1>
+                    <p class="text-secondary small mb-0">Tenant-scoped scheduling for {{ current_organization.name }} with clear isolation and workflows.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="action-chip"><i class="bi bi-shield-check"></i>Tenant isolation</span>
+                    <span class="action-chip"><i class="bi bi-broadcast"></i>Live sync</span>
+                    <span class="action-chip"><i class="bi bi-people"></i>Role aware</span>
+                </div>
+            </div>
+            <div class="p-3 p-lg-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <a class="btn btn-outline-primary smart-action-btn" href="{{ url_for('dashboard.overview') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                    <a class="btn btn-outline-secondary smart-action-btn" href="{{ url_for('admin.maintenance_kanban') }}"><i class="bi bi-view-stacked me-2"></i>Kanban</a>
+                    <a class="btn btn-outline-dark smart-action-btn" href="{{ url_for('admin.maintenance_create') }}"><i class="bi bi-wrench-adjustable-circle me-2"></i>Full Request Form</a>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% if current_user.role.value == 'admin' %}
+                    <button class="btn btn-primary smart-action-btn" type="button" data-bs-toggle="modal" data-bs-target="#createPreventiveModal"><i class="bi bi-calendar-plus me-2"></i>Schedule Preventive</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100 d-flex flex-column justify-content-between">
+                    <div class="stat-label">Total Requests</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value" data-countup-target="{{ total_requests }}">0</span>
+                        <span class="badge badge-soft">Live</span>
+                    </div>
+                    <div class="text-secondary x-small">Tenant isolated</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100">
+                    <div class="stat-label">New</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value" data-countup-target="{{ status_counts.get(MaintenanceStatus.NEW, 0) }}">0</span>
+                        <span class="status-dot status-new"></span>
+                    </div>
+                    <div class="text-secondary x-small">Awaiting triage</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100">
+                    <div class="stat-label">In Progress</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value" data-countup-target="{{ status_counts.get(MaintenanceStatus.IN_PROGRESS, 0) }}">0</span>
+                        <span class="status-dot status-in_progress"></span>
+                    </div>
+                    <div class="text-secondary x-small">Active work</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100">
+                    <div class="stat-label">Repaired</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value" data-countup-target="{{ status_counts.get(MaintenanceStatus.REPAIRED, 0) }}">0</span>
+                        <span class="status-dot status-repaired"></span>
+                    </div>
+                    <div class="text-secondary x-small">Completed</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100">
+                    <div class="stat-label">Scrap</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value" data-countup-target="{{ status_counts.get(MaintenanceStatus.SCRAP, 0) }}">0</span>
+                        <span class="status-dot status-scrap"></span>
+                    </div>
+                    <div class="text-secondary x-small">Retired assets</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="stat-card h-100">
+                    <div class="stat-label">Overdue</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-value text-danger" data-countup-target="{{ overdue_total }}">0</span>
+                        <span class="badge badge-overdue badge-overdue-pulse">Alert</span>
+                    </div>
+                    <div class="text-secondary x-small">Past schedule</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            {% for status in MaintenanceStatus %}
+            <div class="col-sm-6 col-xl-3">
+                <div class="glass-card p-3 h-100 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-secondary x-small text-uppercase">{{ status.value.replace('_',' ') }}</div>
+                        <div class="h4 mb-0" data-countup-target="{{ preventive_counts.get(status, 0) }}">0</div>
+                        <div class="text-secondary x-small">Preventive</div>
+                    </div>
+                    <span class="status-dot status-{{ status.value }}"></span>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-sm-6 col-xl-3">
+                <div class="glass-card p-3 h-100 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-secondary x-small text-uppercase">Overdue</div>
+                        <div class="h4 mb-0 text-danger" data-countup-target="{{ preventive_overdue }}">0</div>
+                        <div class="text-secondary x-small">Requires immediate attention</div>
+                    </div>
+                    <span class="badge text-bg-danger-subtle text-danger">Alert</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-8">
+                <div class="glass-card p-3 calendar-shell" data-preventive-calendar
+                    data-events-url="{{ url_for('admin.preventive_calendar_events') }}"
+                    data-create-url="{{ url_for('admin.preventive_calendar_create') }}"
+                    data-detail-url-template="{{ url_for('admin.preventive_calendar_detail', request_id=0) }}"
+                    data-reschedule-url-template="{{ url_for('admin.preventive_calendar_reschedule', request_id=0) }}"
+                    data-can-create="{{ 'true' if current_user.role.value == 'admin' else 'false' }}"
+                    data-is-admin="{{ 'true' if current_user.role.value == 'admin' else 'false' }}"
+                    data-current-user-id="{{ current_user.id }}"
+                    data-today="{{ today.isoformat() }}">
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div>
+                            <div class="fw-semibold">Preventive schedule</div>
+                            <div class="text-secondary x-small">Live events filtered to your organization and permissions.</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge text-bg-light border">Tenant isolated</span>
+                            <span class="badge text-bg-info-subtle text-info">Preventive only</span>
+                        </div>
+                    </div>
+                    <div class="calendar-loader" data-calendar-loader hidden>
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div>
+                    </div>
+                    <div id="preventiveCalendar"></div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="glass-card p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <div class="fw-semibold">Legend & SLA</div>
+                            <div class="text-secondary x-small">Color-coded states with overdue emphasis.</div>
+                        </div>
+                        <i class="bi bi-magic text-primary"></i>
+                    </div>
+                    <div class="d-grid gap-2 calendar-legend">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2"><span class="legend-dot blue"></span><span>Scheduled / Upcoming</span></div>
+                            <span class="badge text-bg-primary-subtle text-primary">Blue</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2"><span class="legend-dot yellow"></span><span>In Progress</span></div>
+                            <span class="badge text-bg-warning-subtle text-warning">Yellow</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2"><span class="legend-dot green"></span><span>Completed</span></div>
+                            <span class="badge text-bg-success-subtle text-success">Green</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2"><span class="legend-dot red"></span><span>Overdue</span></div>
+                            <span class="badge text-bg-danger-subtle text-danger">Red</span>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-grid gap-2">
+                        <div class="pill-soft d-flex align-items-center gap-2"><i class="bi bi-shield-lock text-primary"></i><span class="x-small">Tenant isolation: IDs validated server-side.</span></div>
+                        <div class="pill-soft d-flex align-items-center gap-2"><i class="bi bi-bell text-warning"></i><span class="x-small">Overdue flagged when past schedule &amp; not completed.</span></div>
+                        <div class="pill-soft d-flex align-items-center gap-2"><i class="bi bi-people text-success"></i><span class="x-small">Role control: Admins schedule; technicians view/execute.</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% set preventive_scheduled = (requests | selectattr('request_type', 'equalto', RequestType.PREVENTIVE) | selectattr('scheduled_date') | list | sort(attribute='scheduled_date')) %}
+        <div class="row g-3 mb-4">
+            <div class="col-xl-5">
+                <div class="glass-card p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <div class="fw-semibold">Upcoming preventive</div>
+                            <div class="text-secondary x-small">Top scheduled items across your teams.</div>
+                        </div>
+                        <span class="badge text-bg-light border">{{ preventive_scheduled|length }} scheduled</span>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for req in preventive_scheduled[:6] %}
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+                            <div class="me-2">
+                                <div class="fw-semibold">{{ req.subject }}</div>
+                                <div class="text-secondary x-small">{{ req.equipment.name if req.equipment else 'Equipment TBD' }} · {{ req.assigned_technician.name if req.assigned_technician else 'Unassigned' }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge text-bg-light border">{{ req.scheduled_date.strftime('%Y-%m-%d') }}</div>
+                                {% if req.is_overdue %}<div class="text-danger x-small">Overdue</div>{% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-secondary x-small">No preventive work scheduled yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7">
+                <div class="glass-card p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div>
+                            <div class="fw-semibold">Smart filters</div>
+                            <div class="text-secondary x-small">Focus on teams, status, and overdue risk.</div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="filter-chip"><i class="bi bi-lock"></i>Tenant only</span>
+                            <span class="filter-chip"><i class="bi bi-activity"></i>Live counts</span>
+                        </div>
+                    </div>
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">All</option>
+                                {% for status in MaintenanceStatus %}
+                                    <option value="{{ status.value }}" {% if status_filter==status.value %}selected{% endif %}>{{ status.value.replace('_',' ')|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Type</label>
+                            <select class="form-select" name="type">
+                                <option value="">All</option>
+                                <option value="preventive" {% if type_filter=='preventive' %}selected{% endif %}>Preventive</option>
+                                <option value="corrective" {% if type_filter=='corrective' %}selected{% endif %}>Breakdown</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Equipment</label>
+                            <select class="form-select" name="equipment_id">
+                                <option value="">Any</option>
+                                {% for eq in equipment_options %}
+                                    <option value="{{ eq.id }}" {% if equipment_filter==eq.id %}selected{% endif %}>{{ eq.name }} · {{ eq.category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Team</label>
+                            <select class="form-select" name="team_id">
+                                <option value="">Any</option>
+                                {% for team in team_options %}
+                                    <option value="{{ team.id }}" {% if team_filter==team.id %}selected{% endif %}>{{ team.team_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Overdue</label>
+                            <select class="form-select" name="overdue">
+                                <option value="false" {% if not overdue_only %}selected{% endif %}>All</option>
+                                <option value="true" {% if overdue_only %}selected{% endif %}>Only Overdue</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex gap-2 align-items-end">
+                            <button class="btn btn-primary w-100" type="submit"><i class="bi bi-filter me-2"></i>Filter</button>
+                            <a class="btn btn-outline-secondary" href="{{ url_for('admin.maintenance_index') }}">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-0">
+            <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-2 flex-wrap gap-2">
+                <div>
+                    <div class="fw-semibold">Maintenance requests</div>
+                    <div class="text-secondary x-small">Status-aware table with overdue highlights.</div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="info-pill x-small"><i class="bi bi-eye"></i> Click row actions to open details</span>
+                    <span class="info-pill x-small"><i class="bi bi-bell"></i> Overdue flagged in red</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Subject</th>
+                            <th>Equipment</th>
+                            <th>Type</th>
+                            <th>Team</th>
+                            <th>Technician</th>
+                            <th>Status</th>
+                            <th>Schedule</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        {% set overdue = req.is_overdue %}
+                        {% set scrapped = req.status.value == 'scrap' or (req.equipment and req.equipment.status.value == 'scrapped') %}
+                        <tr class="{% if overdue %}table-danger-subtle{% endif %} {% if scrapped %}table-scrap{% endif %}">
+                            <td class="fw-semibold">
+                                <a href="{{ url_for('admin.maintenance_detail', request_id=req.id) }}" class="link-underline link-underline-opacity-0">{{ req.subject }}</a>
+                                <div class="small text-secondary">{{ req.description or 'No description' }}</div>
+                            </td>
+                            <td>
+                                {% if req.equipment %}
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <span class="badge text-bg-light border"><i class="bi bi-cpu me-1"></i>{{ req.equipment.name }}</span>
+                                        {% if req.equipment.status.value == 'scrapped' %}<span class="badge text-bg-dark">Scrapped</span>{% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge text-bg-info text-uppercase">{{ req.request_type.value }}</span>
+                            </td>
+                            <td>
+                                {% if req.team %}
+                                    <span class="badge text-bg-light border"><i class="bi bi-diagram-3 me-1"></i>{{ req.team.team_name }}</span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if req.assigned_technician %}
+                                    <span class="badge text-bg-light border"><i class="bi bi-person me-1"></i>{{ req.assigned_technician.name }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% include 'admin/partials/status_badge.html' with context %}
+                            </td>
+                            <td>
+                                {% if req.scheduled_date %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-calendar2-week text-secondary"></i>
+                                        <span>{{ req.scheduled_date.strftime('%Y-%m-%d') }}</span>
+                                        {% if overdue %}
+                                            <span class="badge text-bg-danger">Overdue</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.maintenance_detail', request_id=req.id) }}"><i class="bi bi-box-arrow-up-right"></i></a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-secondary py-4">No maintenance requests found for this tenant.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="createPreventiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="fw-semibold">Schedule Preventive Maintenance</div>
+                    <div class="text-secondary x-small">Auto-typed as preventive and scoped to your tenant.</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="createPreventiveFeedback" hidden></div>
+                <form id="createPreventiveForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Subject</label>
+                        <input class="form-control" name="subject" maxlength="255" placeholder="Quarterly HVAC service" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Equipment</label>
+                        <select class="form-select" name="equipment_id" required>
+                            <option value="">Select equipment</option>
+                            {% for eq in equipment_options %}
+                                <option value="{{ eq.id }}">{{ eq.name }} · {{ eq.category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Steps, safety, scope"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Scheduled Date</label>
+                        <input type="date" class="form-control" name="scheduled_date" id="preventiveScheduledDate" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Technician (optional)</label>
+                        <select class="form-select" name="assigned_technician_id" id="preventiveTechnician">
+                            <option value="">Assign later</option>
+                            {% for tech in technician_options %}
+                                <option value="{{ tech.id }}">{{ tech.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <div class="text-secondary x-small">Request type locked to Preventive • Workflow + SLA enforced.</div>
+                <button type="submit" form="createPreventiveForm" class="btn btn-primary"><i class="bi bi-check2-circle me-2"></i>Save &amp; place on calendar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="preventiveDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="fw-semibold" id="detailSubject">Preventive Request</div>
+                    <div class="text-secondary x-small">View and reschedule with tenant enforcement.</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="preventiveDetailFeedback" hidden></div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="text-secondary x-small">Equipment</div>
+                        <div class="fw-semibold" id="detailEquipment"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-secondary x-small">Technician</div>
+                        <div class="fw-semibold" id="detailTechnician"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-secondary x-small">Status</div>
+                        <div id="detailStatus"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-secondary x-small">Scheduled</div>
+                        <div class="fw-semibold" id="detailSchedule"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-secondary x-small">Description</div>
+                        <div id="detailDescription"></div>
+                    </div>
+                </div>
+                <form id="preventiveRescheduleForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Reschedule date</label>
+                        <input type="date" class="form-control" id="rescheduleDate" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Technician</label>
+                        <select class="form-select" id="rescheduleTechnician">
+                            <option value="">Keep current</option>
+                            {% for tech in technician_options %}
+                                <option value="{{ tech.id }}">{{ tech.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <div class="d-flex gap-2 align-items-center">
+                    <a id="detailOpenRequest" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">Open full request</a>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" form="preventiveRescheduleForm" class="btn btn-primary" id="rescheduleSubmit"><i class="bi bi-calendar-check me-2"></i>Save schedule</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+{% endblock %}

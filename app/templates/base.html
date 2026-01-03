@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+        {% set brand_name = "GearGuard India" %}
+        {% set base_url = request.url_root.rstrip('/') %}
+        {% set canonical_url = request.base_url %}
+        {% set seo_title = (page_title ~ " | " ~ brand_name) if page_title else brand_name ~ " | Maintenance Reliability SaaS Platform" %}
+        {% set seo_description = page_description or "GearGuard India is a maintenance and reliability SaaS platform delivering CMMS, asset health, and AI-powered uptime for Indian enterprises." %}
+        {% set seo_keywords = page_keywords or "maintenance management software India, CMMS SaaS platform, asset reliability software, predictive maintenance India, GearGuard India" %}
+        {% set seo_image = base_url ~ url_for('static', filename='img/logo.png') %}
+        {% set seo_robots = page_robots or "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="description" content="{{ seo_description }}">
+        <meta name="keywords" content="{{ seo_keywords }}">
+        <meta name="author" content="{{ brand_name }}">
+        <meta name="robots" content="{{ seo_robots }}">
+        <meta name="content-language" content="en-IN">
+        <meta name="application-name" content="{{ brand_name }}">
+        <meta name="apple-mobile-web-app-title" content="{{ brand_name }}">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="HandheldFriendly" content="true">
+        <meta name="theme-color" content="#0d6efd">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="canonical" href="{{ canonical_url }}">
+        <title>{% block title %}{{ seo_title }}{% endblock %}</title>
+        <link rel="icon" type="image/png" sizes="196x196" href="{{ url_for('static', filename='img/logo.png') }}?v={{ asset_version }}">
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v={{ asset_version }}">
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo.png') }}?v={{ asset_version }}">
+        <meta property="og:title" content="{{ seo_title }}">
+        <meta property="og:description" content="{{ seo_description }}">
+        <meta property="og:site_name" content="{{ brand_name }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ canonical_url }}">
+        <meta property="og:image" content="{{ seo_image }}">
+        <meta property="og:image:alt" content="{{ brand_name }} logo">
+        <meta property="og:locale" content="en_IN">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ seo_title }}">
+        <meta name="twitter:description" content="{{ seo_description }}">
+        <meta name="twitter:image" content="{{ seo_image }}">
+        <meta name="twitter:image:alt" content="{{ brand_name }} logo">
+        <meta name="twitter:site" content="@GearGuardIndia">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}?v={{ asset_version }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.min.css') }}?v={{ asset_version }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ asset_version }}">
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "Organization",
+                    "name": "{{ brand_name }}",
+                    "url": "{{ base_url }}",
+                    "logo": "{{ seo_image }}",
+                    "description": "{{ seo_description }}",
+                    "contactPoint": [
+                        {
+                            "@type": "ContactPoint",
+                            "contactType": "customer support",
+                            "email": "support@gearguard.in",
+                            "areaServed": "IN",
+                            "availableLanguage": ["en", "hi"]
+                        },
+                        {
+                            "@type": "ContactPoint",
+                            "contactType": "security",
+                            "email": "security@gearguard.in",
+                            "areaServed": "IN",
+                            "availableLanguage": ["en"]
+                        }
+                    ],
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressCountry": "IN"
+                    },
+                    "sameAs": [
+                        "https://www.linkedin.com/company/gearguard",
+                        "https://twitter.com/GearGuardIndia"
+                    ]
+                },
+                {
+                    "@type": "WebSite",
+                    "name": "{{ brand_name }}",
+                    "url": "{{ base_url }}",
+                    "inLanguage": "en-IN",
+                    "potentialAction": {
+                        "@type": "SearchAction",
+                        "target": "{{ base_url }}/search?q={search_term_string}",
+                        "query-input": "required name=search_term_string"
+                    }
+                },
+                {
+                    "@type": "Product",
+                    "name": "GearGuard India Maintenance Cloud",
+                    "description": "AI-assisted maintenance and reliability SaaS for Indian asset-heavy teams.",
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "{{ brand_name }}"
+                    },
+                    "logo": "{{ seo_image }}",
+                    "image": "{{ seo_image }}",
+                    "url": "{{ base_url }}",
+                    "applicationCategory": "BusinessApplication",
+                    "operatingSystem": "All",
+                    "category": "Maintenance SaaS",
+                    "audience": {
+                        "@type": "Audience",
+                        "geographicArea": {
+                            "@type": "AdministrativeArea",
+                            "name": "India"
+                        }
+                    }
+                }
+            ]
+        }
+        </script>
+        {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-body premium-shell">
+    <div class="page-gradient"></div>
+    {% include 'layout/navbar.html' %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="container pt-3">
+        <div class="flash-stack">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-soft flash-card" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="icon-circle text-{{ category == 'danger' and 'danger' or 'primary' }}"><i class="bi bi-info-circle"></i></span>
+                    <div class="flex-grow-1">{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    <main class="main-content container-xxl px-3 px-md-4 px-lg-5 py-4 fade-in">
+        {% block content %}{% endblock %}
+        <div class="modal fade" id="aiModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" data-ai-modal-title>AI Intelligence</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex align-items-center gap-3 mb-3" data-ai-modal-loader hidden>
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <div class="fw-semibold">GearGuard India is thinking...</div>
+                        </div>
+                        <div data-ai-modal-body></div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="me-auto text-secondary small" data-ai-modal-hint>Generated with Google GearGuard India. Tenant isolated.</div>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-ai-modal-apply hidden>Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    {% include 'layout/footer.html' %}
+        
+    <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}?v={{ asset_version }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v={{ asset_version }}"></script>
+    <script src="{{ url_for('static', filename='js/button_spinner.js') }}?v={{ asset_version }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

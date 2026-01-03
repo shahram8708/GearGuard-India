@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Unauthorized · GearGuard{% endblock %}
+{% block content %}
+<div class="error-viewport">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card error-card border-0 rounded-4 shadow hover-lift">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="status-pill text-bg-primary">401</span>
+                            <div>
+                                <p class="text-uppercase small fw-semibold text-secondary mb-1">Session needed</p>
+                                <h1 class="h4 mb-0">Sign in required</h1>
+                            </div>
+                        </div>
+                        <div class="icon-burst text-primary">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary mb-4">{{ message or "Your session is missing or has expired. Please sign in to continue." }}</p>
+
+                    <div class="alert callout-soft-primary d-flex align-items-center gap-3 mb-4">
+                        <div class="icon-badge text-primary"><i class="bi bi-info-circle"></i></div>
+                        <div>
+                            <div class="fw-semibold">Why am I seeing this?</div>
+                            <div class="small text-secondary">Protected pages require an active session. We never expose tenant data without authentication.</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-primary">1</span>
+                                    <div>
+                                        <div class="fw-semibold">Reconnect securely</div>
+                                        <div class="small text-secondary">Return to sign in to refresh your session with MFA and tenant isolation intact.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-primary">2</span>
+                                    <div>
+                                        <div class="fw-semibold">Reset if needed</div>
+                                        <div class="small text-secondary">If you forgot your credentials, reset them and we will email you a secure link.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mini-card h-100">
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <span class="bullet-icon text-bg-success"><i class="bi bi-shield-check"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Tenant safe</div>
+                                        <div class="small text-secondary">No cross-tenant data ever leaves your scope. Access automatically locks on expiry.</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="bullet-icon text-bg-info"><i class="bi bi-life-preserver"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">Need help?</div>
+                                        <div class="small text-secondary">Support is on standby if you run into trouble signing back in.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a href="{{ url_for('main.login') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Go to Sign In
+                        </a>
+                        <a href="{{ url_for('main.forgot_password') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-key me-2"></i>Reset Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
